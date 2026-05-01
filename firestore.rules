@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    match /cases/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /users/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == id;
+      allow delete: if isAdmin();
+    }
+
+    match /news/{id} {
+      // Allow read access for all authenticated users
+      allow read: if request.auth != null;
+      // Allow list operations for queries and real-time listeners
+      allow list: if request.auth != null;
+      // Allow admins to create, update, delete any news
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /notifications/{id} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+  }
+}

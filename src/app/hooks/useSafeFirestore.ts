@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { firestoreLogger } from '../lib/firestoreLogger';
 
@@ -8,14 +8,13 @@ import { firestoreLogger } from '../lib/firestoreLogger';
  */
 export function useSafeFirestore() {
   const { user, loading: authLoading, initializing, error } = useAuth();
-  const [isReady, setIsReady] = useState(false);
+  
+  // Derive isReady directly from auth state to avoid cascading renders
+  const isReady = !initializing && !authLoading && !!user && !error;
 
-  // Check if authentication is ready for Firestore operations
+  // Log authentication state changes
   useEffect(() => {
-    const ready = !initializing && !authLoading && !!user && !error;
-    setIsReady(ready);
-    
-    if (ready) {
+    if (isReady) {
       console.log('🔐 SafeFirestore: Authentication ready for Firestore operations', {
         uid: user.uid,
         email: user.email
@@ -28,10 +27,10 @@ export function useSafeFirestore() {
         error
       });
     }
-  }, [user, authLoading, initializing, error]);
+  }, [isReady, user, initializing, authLoading, error]);
 
   // Wrapper for Firestore operations that checks authentication first
-  const withAuthCheck = useCallback(<T extends any[], R>(
+  const withAuthCheck = useCallback(<T extends unknown[], R>(
     operationName: string,
     collection: string,
     fn: (...args: T) => Promise<R>
@@ -69,7 +68,7 @@ export function useSafeFirestore() {
   }, [isReady, user]);
 
   // Safe real-time listener wrapper
-  const withAuthListener = useCallback(<T extends any[]>(
+  const withAuthListener = useCallback(<T extends unknown[]>(
     operationName: string,
     collection: string,
     setupListener: (...args: T) => (() => void)

@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
@@ -9,16 +8,9 @@ import { useAuth } from '../contexts/AuthContext';
  */
 export function useAuthSafety() {
   const { user, loading, initializing, error } = useAuth();
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Auth is ready when not initializing, not loading, and no errors
-    if (!initializing && !loading && !error) {
-      setIsReady(true);
-    } else {
-      setIsReady(false);
-    }
-  }, [initializing, loading, error]);
+  
+  // Derived state - no need for useEffect or useState
+  const isReady = !initializing && !loading && !error;
 
   return {
     user,
@@ -28,7 +20,7 @@ export function useAuthSafety() {
     isReady,
     canProceed: isReady && !!user,
     // Helper to wrap async operations
-    withAuth: <T, Args extends any[]>(
+    withAuth: <T, Args extends unknown[]>(
       operation: (...args: Args) => Promise<T>,
       fallback?: T | null
     ) => {
@@ -61,7 +53,7 @@ export function useAdminAuthSafety() {
     isAdmin: userDoc?.role === 'admin',
     canProceedAsAdmin: authSafety.canProceed && userDoc?.role === 'admin',
     // Helper to wrap admin operations
-    withAdminAuth: <T, Args extends any[]>(
+    withAdminAuth: <T, Args extends unknown[]>(
       operation: (...args: Args) => Promise<T>,
       fallback?: T | null
     ) => {

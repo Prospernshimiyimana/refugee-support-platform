@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Shield, Lock, Eye, Users, Cookie, Baby, RefreshCw, Phone, Mail, MapPin, Search, ChevronRight, CheckCircle, AlertCircle, Info, Download, Settings, MessageSquare, Clock } from 'lucide-react';
+import { Shield, Lock, Eye, Users, Cookie, Baby, RefreshCw, Phone, Search, CheckCircle, AlertCircle, Info, Download, Settings, MessageSquare, Clock } from 'lucide-react';
 
 interface Contact {
   label: string;
@@ -269,11 +269,11 @@ export default function PrivacyPolicyPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-1 bg-slate-200 z-50">
         <div 
-          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 ease-out shadow-sm"
+          className="h-full bg-linear-to-r from-blue-600 to-indigo-600 transition-all duration-300 ease-out shadow-sm"
           style={{ width: `${readingProgress}%` }}
         />
       </div>
@@ -311,10 +311,10 @@ export default function PrivacyPolicyPage() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
+      <div className="bg-linear-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-purple-500/10"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
@@ -322,7 +322,7 @@ export default function PrivacyPolicyPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-500/20 backdrop-blur-sm rounded-3xl mb-8 border border-blue-400/30">
               <Shield className="w-10 h-10 text-blue-300" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-linear-to-r from-white to-blue-200 bg-clip-text text-transparent">
               Privacy Policy
             </h1>
             <p className="text-xl text-blue-100 max-w-4xl mx-auto mb-12 leading-relaxed">
@@ -437,7 +437,7 @@ export default function PrivacyPolicyPage() {
                 {privacyContent.overview.summary}
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8">
+              <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8">
                 <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-green-500" />
                   Key Commitments
@@ -445,7 +445,7 @@ export default function PrivacyPolicyPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   {privacyContent.overview.keyPoints.map((point, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                         <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
@@ -458,7 +458,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Quick Actions */}
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
+                <div className="bg-linear-to-br from-slate-50 to-slate-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
                   <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Download className="w-6 h-6" />
                   </div>
@@ -469,7 +469,7 @@ export default function PrivacyPolicyPage() {
                   </button>
                 </div>
                 
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
+                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
                   <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Settings className="w-6 h-6" />
                   </div>
@@ -480,7 +480,7 @@ export default function PrivacyPolicyPage() {
                   </a>
                 </div>
                 
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
+                <div className="bg-linear-to-br from-purple-50 to-pink-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
                   <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <MessageSquare className="w-6 h-6" />
                   </div>
@@ -515,7 +515,7 @@ export default function PrivacyPolicyPage() {
                   
                   <div className="space-y-8">
                     {content.content.map((item, index) => (
-                      <div key={index} className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-8 border-l-4 border-blue-400">
+                      <div key={index} className="bg-linear-to-r from-slate-50 to-blue-50 rounded-2xl p-8 border-l-4 border-blue-400">
                         <h3 className="text-xl font-bold text-slate-900 mb-4">{item.heading}</h3>
                         <p className="text-slate-700 leading-relaxed mb-6 text-lg">{item.text}</p>
                         
@@ -615,7 +615,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                   
                   {/* Related Sections */}
-                  <div className="mt-12 bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-8">
+                  <div className="mt-12 bg-linear-to-r from-slate-50 to-blue-50 rounded-2xl p-8">
                     <h3 className="text-xl font-bold text-slate-900 mb-6">Related Sections</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {sections

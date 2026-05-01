@@ -21,9 +21,9 @@ service cloud.firestore {
     }
 
     match /news/{id} {
-      // Allow read access for all authenticated users
-      allow read: if request.auth != null;
-      // Allow list operations for queries and real-time listeners
+      // Allow public read access to published news
+      allow read: if resource.data.status == 'published' || request.auth != null;
+      // Allow list operations for queries and real-time listeners (filtered by status)
       allow list: if request.auth != null;
       // Allow admins to create, update, delete any news
       allow create: if isAdmin();

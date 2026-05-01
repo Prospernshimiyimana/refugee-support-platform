@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { listenToNewsUpdates, type NewsArticle } from '../../lib/newsService';
-import { FileText, Clock, User, Calendar } from 'lucide-react';
+import { User, Calendar } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSafeFirestore } from '../hooks/useSafeFirestore';

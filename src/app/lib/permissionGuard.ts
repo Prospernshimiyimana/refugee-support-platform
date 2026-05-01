@@ -1,7 +1,7 @@
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, collection, getDocs, query, limit, where, setDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, limit } from 'firebase/firestore';
 import { db } from './firebase';
-import { logPermissionError, permissionErrorLogger } from './errorLogger';
+import { logPermissionError } from './errorLogger';
 import { userDocumentManager } from './userDocumentManager';
 import { UserDocument } from './userService';
 
@@ -91,7 +91,16 @@ export class PermissionGuard {
   ): Promise<{ allowed: boolean; reason?: string; details?: { uid?: string; email?: string; operation: string; collection?: string; error?: string } }> {
     const authStatus = this.isUserAuthenticated();
     
+    // Allow public read and list operations on news collection
     if (!authStatus.authenticated) {
+      if (collectionName === 'news' && (operation === 'read' || operation === 'list')) {
+        console.log(`🔒 PermissionGuard: Allowing public ${operation} on ${collectionName}`);
+        return { 
+          allowed: true,
+          reason: `Public ${operation} access allowed for news` 
+        };
+      }
+      
       return { 
         allowed: false, 
         reason: authStatus.reason || 'User not authenticated' 
@@ -237,9 +246,14 @@ export class PermissionGuard {
     // Check authentication first
     const authStatus = this.isUserAuthenticated();
     if (!authStatus.authenticated) {
-      const error = new Error(`Operation blocked: ${authStatus.reason}`);
-      console.error(`🔒 PermissionGuard: ${operation} on ${collectionName} blocked - ${authStatus.reason}`);
-      throw error;
+      // Allow public read and list operations on news collection
+      if (collectionName === 'news' && (operation === 'read' || operation === 'list')) {
+        console.log(`🔒 PermissionGuard: Allowing public ${operation} on ${collectionName}`);
+      } else {
+        const error = new Error(`Operation blocked: ${authStatus.reason}`);
+        console.error(`🔒 PermissionGuard: ${operation} on ${collectionName} blocked - ${authStatus.reason}`);
+        throw error;
+      }
     }
 
     // Test permission
@@ -251,7 +265,7 @@ export class PermissionGuard {
       throw error;
     }
 
-    console.log(`🔒 PermissionGuard: ${operation} on ${collectionName} allowed for user ${authStatus.email}`);
+    console.log(`🔒 PermissionGuard: ${operation} on ${collectionName} allowed${authStatus.email ? ` for user ${authStatus.email}` : ' for public access'}`);
     
     // Execute the actual Firestore operation
     try {

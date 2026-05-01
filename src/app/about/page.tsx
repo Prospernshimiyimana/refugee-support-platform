@@ -163,7 +163,7 @@ export default function AboutPage() {
         <div className="bg-blue-50 rounded-xl p-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Get Involved</h2>
           <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-            Join us in making a difference. Whether you're looking to volunteer, donate, or partner with us, 
+            Join us in making a difference. Whether you&#39;re looking to volunteer, donate, or partner with us, 
             there are many ways to support refugee families in our community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

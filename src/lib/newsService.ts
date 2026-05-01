@@ -1,6 +1,5 @@
 import { 
   Timestamp,
-  onSnapshot,
   Unsubscribe
 } from 'firebase/firestore';
 import { firestoreNotificationService } from './firestoreNotificationService';

@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FileText, Clock, Shield, User, Search, Bell, BarChart3, Users, Globe, Zap } from 'lucide-react';
-import { getLatestNews, listenToNewsUpdates, type NewsArticle } from '../lib/newsService';
+import { listenToNewsUpdates, type NewsArticle } from '../lib/newsService';
 import { caseService, type LegalCase } from '../lib/caseService';
-import { getDashboardStats, getCurrentUser } from './lib/userService';
+import { getDashboardStats, getCurrentUser, type UserDocument } from './lib/userService';
 import { useLanguage } from './contexts/LanguageContext';
 import { getNewsTitle, getNewsContent, getCaseTitle, getCaseDescription } from '../lib/multilingual';
 import { auth } from './lib/firebase';
@@ -16,7 +16,7 @@ export default function Home() {
   const [newsError, setNewsError] = useState<string | null>(null);
   
   // User authentication state
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserDocument | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   
   // Stats data
@@ -90,27 +90,45 @@ export default function Home() {
 
   // Fetch stats data (only when user is authenticated)
   useEffect(() => {
+    let isMounted = true;
+    
     if (!authLoading && user) {
       const fetchStats = async () => {
         try {
           const statsData = await getDashboardStats();
-          setStats(statsData);
-          setStatsLoading(false);
+          if (isMounted) {
+            setStats(statsData);
+            setStatsLoading(false);
+          }
         } catch (error) {
           console.error('Error fetching stats:', error);
-          setStatsLoading(false);
+          if (isMounted) {
+            setStatsLoading(false);
+          }
         }
       };
 
       fetchStats();
     } else if (!authLoading && !user) {
-      // User is not authenticated, set loading to false
-      setStatsLoading(false);
+      // User is not authenticated, set loading to false in next tick
+      const timer = setTimeout(() => {
+        if (isMounted) {
+          setStatsLoading(false);
+        }
+      }, 0);
+      
+      return () => clearTimeout(timer);
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [authLoading, user]);
 
   // Fetch latest cases (only when user is authenticated)
   useEffect(() => {
+    let isMounted = true;
+    
     if (!authLoading && user) {
       const fetchCases = async () => {
         try {
@@ -124,20 +142,34 @@ export default function Home() {
             return 0;
           })
           .slice(0, 3);
-        setLatestCases(sortedCases);
-        setCasesLoading(false);
+        if (isMounted) {
+          setLatestCases(sortedCases);
+          setCasesLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching latest cases:', error);
-        setCasesError('Failed to load latest cases');
-        setCasesLoading(false);
+        if (isMounted) {
+          setCasesError('Failed to load latest cases');
+          setCasesLoading(false);
+        }
       }
     };
 
     fetchCases();
     } else if (!authLoading && !user) {
-      // User is not authenticated, set loading to false
-      setCasesLoading(false);
+      // User is not authenticated, set loading to false in next tick
+      const timer = setTimeout(() => {
+        if (isMounted) {
+          setCasesLoading(false);
+        }
+      }, 0);
+      
+      return () => clearTimeout(timer);
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [authLoading, user]);
   return (
     <div className="min-h-screen bg-white">
@@ -165,7 +197,7 @@ export default function Home() {
                 {language === 'rw' ? (
                   <>
                     <span className="block mb-2">Sisitemu yo Gukurikirana</span>
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Imanza n\'Amakuru ku Mpunzi</span>
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Imanza n&apos;Amakuru ku Mpunzi</span>
                   </>
                 ) : (
                   <>

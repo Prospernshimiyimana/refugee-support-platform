@@ -196,7 +196,10 @@ export const getCurrentUserRole = async () => {
     return null;
   }
   
-  const roleResult = await permissionGuard.getUserRole(auth.uid!);
+  if (!auth.uid) {
+    return null;
+  }
+  const roleResult = await permissionGuard.getUserRole(auth.uid);
   return roleResult.role;
 };
 

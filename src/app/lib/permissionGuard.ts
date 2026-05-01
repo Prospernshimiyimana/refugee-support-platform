@@ -101,8 +101,9 @@ export class PermissionGuard {
     // Check cache first
     const cacheKey = `${collectionName}-${operation}-${documentId || 'list'}`;
     if (this.permissionCache.has(cacheKey)) {
+      const cachedValue = this.permissionCache.get(cacheKey);
       return { 
-        allowed: this.permissionCache.get(cacheKey)! 
+        allowed: cachedValue !== undefined ? cachedValue : false
       };
     }
 
@@ -155,7 +156,13 @@ export class PermissionGuard {
         case 'delete':
           // Write operations can't be safely tested without modifying data
           // We'll check user document and authentication status instead
-          const userDocCheck = await this.checkUserDocumentExists(authStatus.uid!);
+          if (!authStatus.uid) {
+            return { 
+              allowed: false, 
+              reason: 'User UID not available for permission check' 
+            };
+          }
+          const userDocCheck = await this.checkUserDocumentExists(authStatus.uid);
           if (!userDocCheck.exists) {
             return { 
               allowed: false, 

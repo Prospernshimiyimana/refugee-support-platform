@@ -31,7 +31,12 @@ export default function LoginPage() {
       } else {
         // After login, fetch user role and redirect accordingly
         try {
-          const userDoc = await getUserDocument(result.user!.uid);
+          if (!result.user) {
+            setError('Login successful but user data not available');
+            setIsLoading(false);
+            return result;
+          }
+          const userDoc = await getUserDocument(result.user.uid);
           if (userDoc?.role === 'admin') {
             router.push('/dashboard');
           } else {

@@ -18,8 +18,12 @@ const convertFirestoreNotification = (firestoreNotif: FirestoreNotification): No
     'system': 'warning'
   };
 
+  if (!firestoreNotif.id) {
+    throw new Error('Firestore notification missing required id field');
+  }
+
   return {
-    id: firestoreNotif.id!,
+    id: firestoreNotif.id,
     title: firestoreNotif.title || 'Notification',
     message: firestoreNotif.message,
     type: typeMap[firestoreNotif.type] || 'info',

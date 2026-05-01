@@ -76,10 +76,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     setShowNotifications(false);
-    if (notification.actionUrl) {
+    const actionUrl = notification.actionUrl;
+    if (actionUrl) {
       // Use setTimeout to avoid router initialization issues
       setTimeout(() => {
-        router.push(notification.actionUrl!);
+        router.push(actionUrl);
       }, 0);
     }
   };

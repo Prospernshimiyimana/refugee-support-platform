@@ -1021,7 +1021,13 @@ export default function AdminDashboard() {
                                   </span>
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteNews(article.id!)}
+                                  onClick={() => {
+                              if (!article.id) {
+                                console.error('Cannot delete article: missing ID');
+                                return;
+                              }
+                              handleDeleteNews(article.id);
+                            }}
                                   className="relative text-red-600 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-all duration-200 group"
                                 >
                                   <span className="flex items-center">

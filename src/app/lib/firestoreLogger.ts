@@ -55,18 +55,18 @@ export class FirestoreLogger {
   }
 
   // Log permission test before actual operation
-  async testPermission(collection: string, operation: 'read' | 'list' | 'write' | 'create' | 'update' | 'delete'): Promise<boolean> {
-    console.log(`🔥 FirestoreLogger - Testing ${operation} permission on ${collection}`);
+  async testPermission(collectionName: string, operation: 'read' | 'list' | 'write' | 'create' | 'update' | 'delete'): Promise<boolean> {
+    console.log(`🔥 FirestoreLogger - Testing ${operation} permission on ${collectionName}`);
     
     try {
       switch (operation) {
         case 'list':
-          const listQuery = query(collection(db, collection), limit(1));
+          const listQuery = query(collection(db, collectionName), limit(1));
           await getDocs(listQuery);
           break;
         case 'read':
           // Try to read first document
-          const readQuery = query(collection(db, collection), limit(1));
+          const readQuery = query(collection(db, collectionName), limit(1));
           const readSnapshot = await getDocs(readQuery);
           if (!readSnapshot.empty) {
             await getDoc(readSnapshot.docs[0].ref);
@@ -86,13 +86,39 @@ export class FirestoreLogger {
   }
 
   // Log detailed error information
-  logError(operation: string, collection: string, error: any) {
+  logError(operation: string, collection: string, error: unknown) {
+    // Type guard to safely extract error properties
+    const getErrorMessage = (err: unknown): string => {
+      if (err instanceof Error) return err.message;
+      if (typeof err === 'object' && err !== null && 'message' in err) {
+        return String(err.message);
+      }
+      return String(err);
+    };
+
+    const getErrorCode = (err: unknown): string => {
+      if (typeof err === 'object' && err !== null && 'code' in err) {
+        return String(err.code);
+      }
+      return 'NO_CODE';
+    };
+
+    const getErrorStack = (err: unknown): string => {
+      if (err instanceof Error) return err.stack || 'NO_STACK';
+      if (typeof err === 'object' && err !== null && 'stack' in err) {
+        return String(err.stack);
+      }
+      return 'NO_STACK';
+    };
+
+    const errorMessage = getErrorMessage(error);
+    
     const errorDetails = {
       operation,
       collection,
-      errorMessage: error.message || 'Unknown error',
-      errorCode: error.code || 'NO_CODE',
-      errorStack: error.stack || 'NO_STACK',
+      errorMessage,
+      errorCode: getErrorCode(error),
+      errorStack: getErrorStack(error),
       authState: {
         isAuthenticated: !!this.auth.currentUser,
         uid: this.auth.currentUser?.uid || 'none',
@@ -104,7 +130,7 @@ export class FirestoreLogger {
     console.error(`🔥 FirestoreLogger - Detailed Error:`, errorDetails);
 
     // Specific permission error logging
-    if (error.message?.includes('Missing or insufficient permissions')) {
+    if (errorMessage.includes('Missing or insufficient permissions')) {
       console.error(`🔥 FirestoreLogger - PERMISSION DENIED:`, {
         ...errorDetails,
         suggestion: 'Check if user is authenticated and has proper role in users collection'
@@ -117,7 +143,7 @@ export class FirestoreLogger {
 export const firestoreLogger = FirestoreLogger.getInstance();
 
 // Higher-order function to wrap Firestore operations with logging
-export function withFirestoreLogging<T extends any[], R>(
+export function withFirestoreLogging<T extends unknown[], R>(
   operation: string,
   collection: string,
   fn: (...args: T) => Promise<R>

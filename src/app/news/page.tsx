@@ -54,7 +54,7 @@ export default function NewsPage() {
     
     // Set up real-time listener for news with authentication guard
     const setupNewsListener = withAuthCheck('listenToNewsUpdates', 'news', async () => {
-      console.log('📰 NewsPage: Setting up news listener for authenticated user:', user.uid);
+      console.log('📰 NewsPage: Setting up news listener for authenticated user:', user?.uid || 'unknown');
       
       unsubscribe = listenToNewsUpdates((newsData: NewsArticle[]) => {
         if (isMounted) {

@@ -14,7 +14,7 @@ export function useSafeFirestore() {
 
   // Log authentication state changes
   useEffect(() => {
-    if (isReady) {
+    if (isReady && user) {
       console.log('🔐 SafeFirestore: Authentication ready for Firestore operations', {
         uid: user.uid,
         email: user.email
@@ -47,6 +47,9 @@ export function useSafeFirestore() {
 
       // Check user document exists (important for role-based rules)
       try {
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
         const userDocExists = await firestoreLogger.logUserDocumentCheck(user.uid);
         if (!userDocExists) {
           console.warn(`🔐 SafeFirestore: User document does not exist for UID: ${user.uid}`);

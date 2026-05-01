@@ -160,12 +160,12 @@ export const safeGetAllDocuments = async (collectionName: string, options?: {
   }
   
   const snapshot = await safeGetDocs(collectionName, queryFn);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Record<string, any>) }));
 };
 
 export const safeGetDocumentById = async (collectionName: string, docId: string) => {
   const docSnap = await safeGetDoc(collectionName, docId);
-  return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+  return docSnap.exists() ? { id: docSnap.id, ...(docSnap.data() as Record<string, any>) } : null;
 };
 
 // Permission checking utilities

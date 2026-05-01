@@ -320,7 +320,7 @@ export default function TermsOfServicePage() {
                 <h2 className="text-3xl font-bold text-gray-900 mb-8">{content.title}</h2>
                 
                 <div className="space-y-8">
-                  {content.content.map((item, index) => (
+                  {'content' in content && content.content.map((item, index) => (
                     <div key={index} className="border-l-4 border-blue-400 pl-6 py-4">
                       <h3 className="text-xl font-bold text-gray-900 mb-3">{item.heading}</h3>
                       <p className="text-gray-600 leading-relaxed">{item.text}</p>

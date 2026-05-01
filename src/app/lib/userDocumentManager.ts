@@ -31,7 +31,7 @@ export class UserDocumentManager {
       const result = await this.creationInProgress.get(uid);
       return { 
         success: !!result, 
-        userDoc: result 
+        userDoc: result || null 
       };
     }
 

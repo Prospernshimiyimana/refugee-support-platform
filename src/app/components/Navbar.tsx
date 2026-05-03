@@ -29,11 +29,8 @@ type NavLink = {
 };
 
 export default function Navbar() {
-  console.log('🔐 Navbar: Rendering Navbar');
-  
   const pathname = usePathname();
   const { user, userDoc, loading, logout, isAdmin } = useAuth();
-  console.log('🔐 Navbar: Auth state - User:', user?.email, 'Loading:', loading, 'IsAdmin:', isAdmin);
   
   const { t, language, setLanguage } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

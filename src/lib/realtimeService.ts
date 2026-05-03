@@ -1,15 +1,8 @@
 import { 
-  collection, 
-  query, 
-  onSnapshot, 
-  orderBy, 
-  where, 
-  limit,
   DocumentData,
-  Query,
   Unsubscribe 
 } from 'firebase/firestore';
-import { db } from '@/app/lib/firebase';
+import { safeOnSnapshot, safeQuery } from '@/app/lib/safeFirestore';
 import { getAuth } from 'firebase/auth';
 
 // Real-time listener management
@@ -42,33 +35,41 @@ class RealtimeService {
       }
     }
 
-    // Build query
-    let q: Query = collection(db, collectionName);
+    // Build query using safe query builders
+    const queryFns = [];
     
     if (queryParams.where) {
-      q = query(q, where(queryParams.where[0], queryParams.where[1], queryParams.where[2]));
+      queryFns.push(safeQuery.where(queryParams.where[0], queryParams.where[1], queryParams.where[2]));
     }
     
     if (queryParams.orderBy) {
-      q = query(q, orderBy(queryParams.orderBy, queryParams.orderDirection || 'desc'));
+      queryFns.push(safeQuery.orderBy(queryParams.orderBy, queryParams.orderDirection || 'desc'));
     }
     
     if (queryParams.limit) {
-      q = query(q, limit(queryParams.limit));
+      queryFns.push(safeQuery.limit(queryParams.limit));
     }
 
-    // Subscribe to real-time updates
-    const unsubscribe = onSnapshot(
-      q,
+    const queryFn = queryFns.length > 0 ? safeQuery.combine(...queryFns) : undefined;
+
+    // Subscribe to real-time updates using safe Firestore
+    const unsubscribe = safeOnSnapshot(
+      collectionName,
       (snapshot) => {
         const data: DocumentData[] = [];
-        snapshot.forEach((doc) => {
+        snapshot.forEach((doc: any) => {
           data.push({ id: doc.id, ...doc.data() });
         });
         callback(data);
       },
+      queryFn,
       (error) => {
         console.error(`Real-time subscription error for ${collectionName}:`, error);
+        // For permission errors, return empty data
+        if (error instanceof Error && (error.message.includes('Permission denied') || error.message.includes('No authenticated user found'))) {
+          console.warn(`🔒 RealtimeService: Permission denied for ${collectionName}, returning empty data`);
+          callback([]);
+        }
       }
     );
 
@@ -163,14 +164,15 @@ class RealtimeService {
     };
 
     // Users count
-    const usersUnsub = onSnapshot(
-      query(collection(db, 'users')),
-      (snapshot) => {
+    const usersUnsub = safeOnSnapshot(
+      'users',
+      (snapshot: any) => {
         usersCount = snapshot.size;
         completed++;
         checkComplete();
       },
-      (error) => {
+      undefined,
+      (error: any) => {
         console.error('Real-time users count error:', error);
         completed++;
         checkComplete();
@@ -178,14 +180,15 @@ class RealtimeService {
     );
 
     // Cases count
-    const casesUnsub = onSnapshot(
-      query(collection(db, 'cases')),
-      (snapshot) => {
+    const casesUnsub = safeOnSnapshot(
+      'cases',
+      (snapshot: any) => {
         casesCount = snapshot.size;
         completed++;
         checkComplete();
       },
-      (error) => {
+      undefined,
+      (error: any) => {
         console.error('Real-time cases count error:', error);
         completed++;
         checkComplete();
@@ -193,14 +196,18 @@ class RealtimeService {
     );
 
     // News count (only published news to avoid permission issues)
-    const newsUnsub = onSnapshot(
-      query(collection(db, 'news'), where('status', '==', 'published')),
-      (snapshot) => {
+    const newsQuery = safeQuery.combine(
+      safeQuery.where('status', '==', 'published')
+    );
+    const newsUnsub = safeOnSnapshot(
+      'news',
+      (snapshot: any) => {
         newsCount = snapshot.size;
         completed++;
         checkComplete();
       },
-      (error) => {
+      newsQuery,
+      (error: any) => {
         console.error('Real-time news count error:', error);
         completed++;
         checkComplete();

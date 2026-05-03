@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, collection, getDocs, query, limit } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 // Comprehensive Firestore logging system
@@ -54,36 +54,6 @@ export class FirestoreLogger {
     }
   }
 
-  // Log permission test before actual operation
-  async testPermission(collectionName: string, operation: 'read' | 'list' | 'write' | 'create' | 'update' | 'delete'): Promise<boolean> {
-    console.log(`🔥 FirestoreLogger - Testing ${operation} permission on ${collectionName}`);
-    
-    try {
-      switch (operation) {
-        case 'list':
-          const listQuery = query(collection(db, collectionName), limit(1));
-          await getDocs(listQuery);
-          break;
-        case 'read':
-          // Try to read first document
-          const readQuery = query(collection(db, collectionName), limit(1));
-          const readSnapshot = await getDocs(readQuery);
-          if (!readSnapshot.empty) {
-            await getDoc(readSnapshot.docs[0].ref);
-          }
-          break;
-        default:
-          console.warn(`🔥 FirestoreLogger - Permission test not implemented for ${operation}`);
-          return false;
-      }
-
-      console.log(`🔥 FirestoreLogger - Permission test PASSED for ${operation} on ${collection}`);
-      return true;
-    } catch (error) {
-      console.error(`🔥 FirestoreLogger - Permission test FAILED for ${operation} on ${collection}:`, error);
-      return false;
-    }
-  }
 
   // Log detailed error information
   logError(operation: string, collection: string, error: unknown) {

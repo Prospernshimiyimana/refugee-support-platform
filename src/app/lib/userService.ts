@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, collection, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, getDocs, query, updateDoc, where, serverTimestamp } from 'firebase/firestore';
 import { auth } from './firebase';
 import { db } from './firebase';
 
@@ -6,6 +6,9 @@ export interface UserDocument {
   uid: string;
   email: string;
   role: 'admin' | 'user';
+  createdAt?: any;
+  updatedAt?: any;
+  lastLoginAt?: any;
 }
 
 export const createUserDocument = async (user: {
@@ -18,7 +21,10 @@ export const createUserDocument = async (user: {
     const userDoc: UserDocument = {
       uid: user.uid,
       email: user.email,
-      role: 'user' // Default role for new signups
+      role: 'user', // Default role for new signups
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp()
     };
     
     await setDoc(userRef, userDoc);

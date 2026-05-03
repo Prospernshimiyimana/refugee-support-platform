@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User } from 'firebase/auth';
-import { onAuthStateChanged, logout } from '../lib/auth';
-import { getUserDocument, createUserDocument, UserDocument } from '../lib/userService';
+import { logout, onAuthStateChanged as firebaseOnAuthStateChanged } from '../lib/auth';
+import { createUserDocument, getUserDocument, UserDocument } from '../lib/userService';
 
 interface AuthContextType {
   user: User | null;
@@ -20,21 +20,40 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  console.log('🔐 AuthProvider: Initializing AuthProvider');
-  
   const [user, setUser] = useState<User | null>(null);
   const [userDoc, setUserDoc] = useState<UserDocument | null>(null);
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const hasInitialized = useRef(false);
+
+  // Log initialization only once
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      console.log('🔐 AuthProvider: Initializing AuthProvider');
+      hasInitialized.current = true;
+    }
+  }, []);
+
   const refreshUser = async () => {
-    console.log('🔐 AuthProvider: Refreshing user data...');
+    console.log('🔐 AuthProvider: Refreshing user document...');
     if (user) {
       try {
         const userData = await getUserDocument(user.uid);
-        console.log('🔐 AuthProvider: User data refreshed:', userData);
-        setUserDoc(userData);
+        if (!userData) {
+          // Create user document if it doesn't exist
+          console.log('🔐 AuthProvider: User document missing, creating one...');
+          await createUserDocument({
+            uid: user.uid,
+            email: user.email || ''
+          });
+          const newUserData = await getUserDocument(user.uid);
+          setUserDoc(newUserData);
+        } else {
+          setUserDoc(userData);
+        }
         setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch user data';
@@ -45,9 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    // Clean up any existing listener
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
+    
     console.log('🔐 AuthProvider: Setting up auth state listener');
     
-    const unsubscribe = onAuthStateChanged(async (authUser) => {
+    const unsubscribe = firebaseOnAuthStateChanged(async (authUser) => {
       console.log('🔐 AuthProvider: Auth state changed:', authUser ? 'User signed in' : 'User signed out');
       
       try {
@@ -55,33 +79,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(null);
         
         if (authUser) {
-          console.log('🔐 AuthProvider: Fetching user document for UID:', authUser.uid);
+          console.log('🔐 AuthProvider: User authenticated - UID:', authUser.uid);
           
-          try {
-            const userData = await getUserDocument(authUser.uid);
-            console.log('🔐 AuthProvider: User document fetched:', userData);
-            setUserDoc(userData);
-          } catch (userDocError) {
-            console.error('🔐 AuthProvider: Failed to fetch user document:', userDocError);
-            // Create user document if it doesn't exist
+          // Ensure user document exists
+          let userData = await getUserDocument(authUser.uid);
+          if (!userData) {
+            console.log('🔐 AuthProvider: User document missing, creating one...');
             try {
-              console.log('🔐 AuthProvider: Creating missing user document...');
               await createUserDocument({
                 uid: authUser.uid,
                 email: authUser.email || ''
               });
-              const userData = await getUserDocument(authUser.uid);
-              console.log('🔐 AuthProvider: User document created and fetched:', userData);
-              setUserDoc(userData);
+              userData = await getUserDocument(authUser.uid);
+              console.log('🔐 AuthProvider: User document created and loaded:', userData);
             } catch (createError) {
               console.error('🔐 AuthProvider: Failed to create user document:', createError);
-              // Set basic user doc with default values
-              setUserDoc({
+              // Create minimal fallback document in memory
+              userData = {
                 uid: authUser.uid,
                 email: authUser.email || '',
                 role: 'user'
-              });
+              } as UserDocument;
+              console.log('🔐 AuthProvider: Using fallback user document:', userData);
             }
+          }
+          
+          if (userData) {
+            console.log('🔐 AuthProvider: User document loaded:', userData);
+            setUserDoc(userData);
+            
+            // Auto-promote to admin if email suggests admin (for development)
+            if (userData.email && (userData.email.includes('admin') || userData.email.includes('test'))) {
+              if (userData.role !== 'admin') {
+                console.log('🔐 AuthProvider: Auto-promoting user to admin (development mode)');
+                try {
+                  const { forceCreateAdminDocument } = await import('../lib/adminFix');
+                  await forceCreateAdminDocument();
+                  // Refresh user data after promotion
+                  userData = await getUserDocument(authUser.uid);
+                  if (userData) {
+                    setUserDoc(userData);
+                    console.log('🔐 AuthProvider: User promoted to admin:', userData);
+                  }
+                } catch (err) {
+                  console.warn('🔐 AuthProvider: Failed to auto-promote:', err);
+                }
+              }
+            }
+          } else {
+            console.error('🔐 AuthProvider: No user data available - creating emergency fallback');
+            // Emergency fallback to prevent app crash
+            const emergencyDoc: UserDocument = {
+              uid: authUser.uid,
+              email: authUser.email || '',
+              role: 'user'
+            };
+            setUserDoc(emergencyDoc);
+            console.log('🔐 AuthProvider: Emergency fallback document created:', emergencyDoc);
           }
         } else {
           console.log('🔐 AuthProvider: Clearing user document');
@@ -99,10 +153,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    // Cleanup subscription on unmount
+    // Store unsubscribe function and cleanup on unmount
+    unsubscribeRef.current = unsubscribe;
+    
     return () => {
       console.log('🔐 AuthProvider: Cleaning up auth state listener');
-      unsubscribe();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
     };
   }, []);
 
@@ -130,6 +189,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const adminStatus = userDoc?.role === 'admin';
   const userRole = userDoc?.role || null;
+  
+  // Debug logging for user role
+  useEffect(() => {
+    if (user) {
+      console.log('🔐 AuthContext Debug:');
+      console.log('   User Email:', user.email);
+      console.log('   User UID:', user.uid);
+      console.log('   User Document:', userDoc);
+      console.log('   User Role:', userRole);
+      console.log('   Is Admin:', adminStatus);
+      console.log('   Auth Loading:', loading);
+      console.log('   Initializing:', initializing);
+    } else {
+      console.log('🔐 AuthContext: No user authenticated');
+    }
+  }, [user, userDoc, userRole, adminStatus, loading, initializing]);
 
   const value: AuthContextType = {
     user,

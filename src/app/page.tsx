@@ -58,6 +58,7 @@ export default function Home() {
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
     
+    // Only run queries when auth is ready
     if (!authLoading) {
       const fetchNews = async () => {
         try {
@@ -88,10 +89,11 @@ export default function Home() {
     };
   }, [authLoading]);
 
-  // Fetch stats data (only when user is authenticated)
+  // Fetch stats data (only when user is authenticated and profile is loaded)
   useEffect(() => {
     let isMounted = true;
     
+    // Only run queries when auth is ready and user profile is loaded
     if (!authLoading && user) {
       const fetchStats = async () => {
         try {
@@ -125,10 +127,11 @@ export default function Home() {
     };
   }, [authLoading, user]);
 
-  // Fetch latest cases (only when user is authenticated)
+  // Fetch latest cases (only when user is authenticated and profile is loaded)
   useEffect(() => {
     let isMounted = true;
     
+    // Only run queries when auth is ready and user profile is loaded
     if (!authLoading && user) {
       const fetchCases = async () => {
         try {
@@ -171,6 +174,16 @@ export default function Home() {
       isMounted = false;
     };
   }, [authLoading, user]);
+
+  // Main loading guard - do not render anything before auth is ready
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}

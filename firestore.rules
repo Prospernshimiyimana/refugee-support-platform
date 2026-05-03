@@ -21,13 +21,20 @@ service cloud.firestore {
     }
 
     match /news/{id} {
-      // Allow public read access to published news
-      allow read: if resource.data.status == 'published' || request.auth != null;
-      // Allow list operations for queries and real-time listeners (filtered by status)
+      // GET operations - individual document access
+      allow get: if resource.data.status == 'published' || request.auth != null;
+      
+      // LIST operations - allow all authenticated users to list
       allow list: if request.auth != null;
-      // Allow admins to create, update, delete any news
+      
+      // CREATE operations - only admins can create
       allow create: if isAdmin();
-      allow update: if isAdmin();
+      
+      // UPDATE operations - admins can update any, authors can update their own
+      allow update: if isAdmin() || 
+        (request.auth != null && resource.data.author == request.auth.uid);
+      
+      // DELETE operations - only admins can delete
       allow delete: if isAdmin();
     }
 

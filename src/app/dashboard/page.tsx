@@ -8,7 +8,6 @@ import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getNewsTitle, getNewsContent } from '@/lib/multilingual';
-import { checkAdminAccessByRole } from '../../utils/adminProtection';
 import { realtimeService } from '../../lib/realtimeService';
 import { firestoreNotificationService } from '../../lib/firestoreNotificationService';
 import { exportService } from '../../lib/exportService';
@@ -42,8 +41,18 @@ interface NewsData {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { role, loading: authLoading, initializing, error } = useAuth();
+  const { role, loading: authLoading, initializing, error, isAdmin } = useAuth();
   const { language } = useLanguage();
+  
+  // Debug logging for dashboard access
+  useEffect(() => {
+    console.log('🎯 Dashboard Debug:');
+    console.log('   Role:', role);
+    console.log('   Is Admin:', isAdmin);
+    console.log('   Auth Loading:', authLoading);
+    console.log('   Initializing:', initializing);
+    console.log('   Error:', error);
+  }, [role, isAdmin, authLoading, initializing, error]);
   
   // Local state for forms - must be declared before any early returns
   const [showCaseForm, setShowCaseForm] = useState(false);
@@ -113,12 +122,16 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!initializing && !authLoading) {
       if (!role) {
+        console.log('🎯 Dashboard: No role found, redirecting to login');
         router.replace('/login');
-      } else if (role !== 'admin') {
+      } else if (!isAdmin) {
+        console.log('🎯 Dashboard: User is not admin, redirecting to home');
         router.replace('/');
+      } else {
+        console.log('🎯 Dashboard: User is admin, allowing access');
       }
     }
-  }, [role, authLoading, initializing, router]);
+  }, [role, isAdmin, authLoading, initializing, router]);
 
   // Fetch news articles
   useEffect(() => {
@@ -223,45 +236,26 @@ export default function AdminDashboard() {
   }
 
   // Show error state if auth failed
-  if (error) {
+  console.log('🎯 Dashboard Debug - Role:', role, 'Is Admin:', isAdmin, 'Loading:', authLoading, 'Initializing:', initializing);
+  
+  // Only render dashboard content if user is admin
+  if (!isAdmin) {
+    // Show loading state while redirecting
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate via-blue to-indigo flex items-center justify-center">
-        <div className="bg-white opacity-90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-red-200 max-w-md mx-4">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-              <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'} />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Authentication Error</h3>
-              <p className="text-slate-600 text-sm mb-4">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600 text-sm">Checking admin access...</p>
+          <p className="text-gray-500 text-xs">Role: {role || 'loading...'}</p>
+          <p className="text-gray-500 text-xs">Is Admin: {isAdmin ? 'YES' : 'NO'}</p>
         </div>
       </div>
     );
   }
 
-  // Only render dashboard content if user is admin
-  if (role !== 'admin') {
-    return null; // Will be redirected by useEffect
-  }
-
   // Form handlers
   const handleCaseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check if user is admin before proceeding
-    if (!checkAdminAccessByRole(role)) {
-      return;
-    }
     
     // Validate fields
     if (!newCase.title_en.trim()) {
@@ -332,11 +326,6 @@ export default function AdminDashboard() {
 
   const handleNewsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check if user is admin before proceeding
-    if (!checkAdminAccessByRole(role)) {
-      return;
-    }
     
     // Validate fields
     if (!newArticle.title.trim()) {
@@ -436,10 +425,6 @@ export default function AdminDashboard() {
 
   // News handlers
   const handleCreateNews = async () => {
-    // Check if user is admin before proceeding
-    if (!checkAdminAccessByRole(role)) {
-      return;
-    }
 
     if (!newNews.title_en.trim() || !newNews.title_rw.trim() || !newNews.content_en.trim() || !newNews.content_rw.trim() || !newNews.author.trim()) {
       setFormError('Please fill in all required fields');
@@ -479,10 +464,6 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteNews = async (newsId: string) => {
-    // Check if user is admin before proceeding
-    if (!checkAdminAccessByRole(role)) {
-      return;
-    }
 
     try {
       await deleteNews(newsId);
@@ -494,10 +475,6 @@ export default function AdminDashboard() {
   };
 
   const handleExportData = async () => {
-    // Check if user is admin before proceeding
-    if (!checkAdminAccessByRole(role)) {
-      return;
-    }
 
     try {
       setIsExporting(true);
@@ -804,7 +781,7 @@ export default function AdminDashboard() {
           </div>
 
         {/* Dashboard Sections - Admin Only */}
-          {role === 'admin' && (
+          {isAdmin && (
             <div className="p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 

@@ -3,7 +3,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   User,
-  UserCredential
+  UserCredential,
+  onAuthStateChanged as firebaseOnAuthStateChanged
 } from 'firebase/auth';
 import { auth } from './firebase';
 import { createUserDocument } from './userService';
@@ -61,18 +62,13 @@ export async function signUp(email: string, password: string): Promise<AuthResul
     
     console.log('🔐 Auth: User created successfully! UID:', userCredential.user.uid);
     
-    // Create user document in Firestore with error handling
-    try {
-      console.log('🔐 Auth: Creating user document in Firestore...');
-      await createUserDocument({
-        uid: userCredential.user.uid,
-        email: userCredential.user.email || email
-      });
-      console.log('🔐 Auth: User document created successfully');
-    } catch (firestoreError) {
-      console.error('🔐 Auth: Failed to create user document:', firestoreError);
-      // Don't fail auth - user can still be created, document can be created later
-    }
+    // Create user document in Firestore - this is required for permissions
+    console.log('🔐 Auth: Creating user document in Firestore...');
+    await createUserDocument({
+      uid: userCredential.user.uid,
+      email: userCredential.user.email || email
+    });
+    console.log('🔐 Auth: User document created successfully');
 
     return {
       success: true,
@@ -106,8 +102,19 @@ export async function signUp(email: string, password: string): Promise<AuthResul
         case 'auth/operation-not-allowed':
           errorMessage = 'Email/password sign-up is not enabled. Please contact support.';
           break;
+        case 'permission-denied':
+        case 'FirebaseError: Missing or insufficient permissions.':
+          errorMessage = 'Failed to create user account due to permission issues. Please contact support.';
+          break;
         default:
           errorMessage = `Sign up error: ${errorCode}. Please try again or contact support.`;
+      }
+    } else if (error instanceof Error) {
+      console.error('🔐 Auth: Error message:', error.message);
+      if (error.message.includes('permission-denied') || error.message.includes('Missing or insufficient permissions')) {
+        errorMessage = 'Failed to create user account due to permission issues. Please contact support.';
+      } else {
+        errorMessage = `Sign up error: ${error.message}. Please try again.`;
       }
     } else {
       console.error('🔐 Auth: Unknown error type:', typeof error);
@@ -169,6 +176,19 @@ export async function login(email: string, password: string): Promise<AuthResult
     console.log('🔐 Auth: Login successful! User ID:', userCredential.user.uid);
     console.log('🔐 Auth: User email:', userCredential.user.email);
     console.log('🔐 Auth: User email verified:', userCredential.user.emailVerified);
+
+    // Ensure user document exists for existing users
+    try {
+      console.log('🔐 Auth: Ensuring user document exists...');
+      await createUserDocument({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email || email
+      });
+      console.log('🔐 Auth: User document ensured successfully');
+    } catch (firestoreError) {
+      console.error('🔐 Auth: Warning - Failed to ensure user document:', firestoreError);
+      // Don't fail login - user can still log in, document creation will be retried on next operation
+    }
 
     return {
       success: true,
@@ -282,7 +302,7 @@ export async function createTestUser(email: string, password: string): Promise<A
 export function onAuthStateChanged(callback: (user: User | null) => void) {
   console.log('🔐 Auth: Setting up onAuthStateChanged listener');
   
-  const unsubscribe = auth.onAuthStateChanged((user) => {
+  const unsubscribe = firebaseOnAuthStateChanged(auth, (user: User | null) => {
     if (user) {
       console.log('🔐 Auth: User is signed in - UID:', user.uid);
       console.log('🔐 Auth: User email:', user.email);

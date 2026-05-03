@@ -224,17 +224,11 @@ export function logPermissionError(
   documentId?: string,
   requestDetails?: RequestDetails
 ): void {
-  // Debug logging to identify what's being passed
-  console.log('🔥 logPermissionError called with:', {
-    operation,
-    collection,
-    error: error ? (error instanceof Error ? error.message : error) : 'undefined/null',
-    errorType: typeof error,
-    authState: authState ? 'defined' : 'undefined',
-    userDocumentExists,
-    userRole,
-    documentId
-  });
+  // Guard against logging empty error objects
+  if (!error || (typeof error === 'object' && Object.keys(error).length === 0)) {
+    console.warn('🔥 Skipping logging of empty error object');
+    return;
+  }
 
   const permissionError = createPermissionError(
     operation,

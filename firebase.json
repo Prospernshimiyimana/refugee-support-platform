@@ -1,22 +1,6 @@
 {
   "firestore": {
-    "rules": "firestore.rules",
-    "indexes": [
-      {
-        "collection": "news",
-        "queryScope": "COLLECTION",
-        "fields": [
-          {
-            "fieldPath": "status",
-            "order": "ASCENDING"
-          },
-          {
-            "fieldPath": "createdAt",
-            "order": "DESCENDING"
-          }
-        ]
-      }
-    ]
+    "rules": "firestore.rules"
   },
   "hosting": {
     "public": "public",

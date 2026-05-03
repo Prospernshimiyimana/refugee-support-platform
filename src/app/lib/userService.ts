@@ -17,6 +17,12 @@ export const createUserDocument = async (user: {
 }): Promise<void> => {
   try {
     console.log('🔥 UserService: Creating user document for UID:', user.uid, 'Email:', user.email);
+    
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
+      throw new Error('Database not available');
+    }
+    
     const userRef = doc(db, 'users', user.uid);
     const userDoc: UserDocument = {
       uid: user.uid,
@@ -38,6 +44,12 @@ export const createUserDocument = async (user: {
 export const getUserDocument = async (uid: string): Promise<UserDocument | null> => {
   try {
     console.log('🔥 UserService: Fetching user document for UID:', uid);
+    
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
+      return null;
+    }
+    
     const userRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userRef);
     
@@ -55,9 +67,14 @@ export const getUserDocument = async (uid: string): Promise<UserDocument | null>
   }
 };
 
-export const getCurrentUser = async (): Promise<UserDocument | null> => {
+export const getCurrentUserDocument = async (): Promise<UserDocument | null> => {
+  if (!auth) {
+    console.warn('🔥 UserService: Firebase Auth not initialized');
+    return null;
+  }
+  
   const currentUser = auth.currentUser;
-  if (!currentUser) {
+  if (!currentUser || !currentUser.uid) {
     return null;
   }
   
@@ -66,6 +83,11 @@ export const getCurrentUser = async (): Promise<UserDocument | null> => {
 
 export const getAllUsers = async (): Promise<UserDocument[]> => {
   try {
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
+      throw new Error('Database not available');
+    }
+    
     const usersCollection = collection(db, 'users');
     const usersQuery = query(usersCollection);
     const querySnapshot = await getDocs(usersQuery);
@@ -84,6 +106,11 @@ export const getAllUsers = async (): Promise<UserDocument[]> => {
 
 export const updateUserRole = async (uid: string, role: 'admin' | 'user'): Promise<void> => {
   try {
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
+      throw new Error('Database not available');
+    }
+    
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, { role });
     console.log(`User role updated successfully for uid: ${uid}`);
@@ -95,9 +122,19 @@ export const updateUserRole = async (uid: string, role: 'admin' | 'user'): Promi
 
 export const getUsersCount = async (): Promise<number> => {
   try {
+    if (!auth) {
+      console.warn('🔥 UserService: Firebase Auth not initialized');
+      return 0;
+    }
+    
     const currentUser = auth.currentUser;
     if (!currentUser) {
       console.warn('User not authenticated, cannot fetch users count');
+      return 0;
+    }
+    
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
       return 0;
     }
     
@@ -113,9 +150,19 @@ export const getUsersCount = async (): Promise<number> => {
 
 export const getCasesCount = async (): Promise<number> => {
   try {
+    if (!auth) {
+      console.warn('🔥 UserService: Firebase Auth not initialized');
+      return 0;
+    }
+    
     const currentUser = auth.currentUser;
     if (!currentUser) {
       console.warn('User not authenticated, cannot fetch cases count');
+      return 0;
+    }
+    
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
       return 0;
     }
     
@@ -131,6 +178,11 @@ export const getCasesCount = async (): Promise<number> => {
 
 export const getNewsCount = async (): Promise<number> => {
   try {
+    if (!auth) {
+      console.warn('🔥 UserService: Firebase Auth not initialized');
+      return 0;
+    }
+    
     const currentUser = auth.currentUser;
     if (!currentUser) {
       console.warn('🔥 UserService: User not authenticated, cannot fetch news count');
@@ -138,6 +190,11 @@ export const getNewsCount = async (): Promise<number> => {
     }
     
     console.log('🔥 UserService: Fetching news count for authenticated user:', currentUser.uid);
+    
+    if (!db) {
+      console.error('🔥 UserService: Database not available');
+      return 0;
+    }
     
     const newsCollection = collection(db, 'news');
     // Filter by published status to avoid permission issues
@@ -161,6 +218,15 @@ export const getNewsCount = async (): Promise<number> => {
 
 export const getDashboardStats = async () => {
   try {
+    if (!auth) {
+      console.warn('🔥 UserService: Firebase Auth not initialized');
+      return {
+        usersCount: 0,
+        casesCount: 0,
+        newsCount: 0
+      };
+    }
+    
     const currentUser = auth.currentUser;
     if (!currentUser) {
       console.warn('User not authenticated, cannot fetch dashboard stats');

@@ -28,11 +28,16 @@ export interface LegalCase {
 }
 
 class CaseService {
-  private collection = collection(db, 'cases');
+  private collection = db ? collection(db, 'cases') : null;
 
   // Get a single case by ID
   async getCaseById(caseId: string): Promise<LegalCase | null> {
     try {
+      if (!db) {
+        console.error('CaseService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const caseDoc = await getDoc(doc(db, 'cases', caseId));
       
       if (caseDoc.exists()) {
@@ -53,6 +58,11 @@ class CaseService {
   // Get all cases
   async getAllCases(): Promise<LegalCase[]> {
     try {
+      if (!this.collection) {
+        console.error('CaseService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const snapshot = await getDocs(this.collection);
       const cases: LegalCase[] = [];
       
@@ -73,6 +83,11 @@ class CaseService {
   // Get cases by status
   async getCasesByStatus(status: string): Promise<LegalCase[]> {
     try {
+      if (!this.collection) {
+        console.error('CaseService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const q = query(this.collection, where('status', '==', status));
       const snapshot = await getDocs(q);
       const cases: LegalCase[] = [];
@@ -94,6 +109,11 @@ class CaseService {
   // Get cases by assigned user
   async getCasesByAssignedUser(userId: string): Promise<LegalCase[]> {
     try {
+      if (!this.collection) {
+        console.error('CaseService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const q = query(this.collection, where('assignedTo', '==', userId));
       const snapshot = await getDocs(q);
       const cases: LegalCase[] = [];
@@ -115,6 +135,11 @@ class CaseService {
   // Delete a case by ID
   async deleteCase(caseId: string): Promise<void> {
     try {
+      if (!db) {
+        console.error('CaseService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const caseDoc = doc(db, 'cases', caseId);
       await deleteDoc(caseDoc);
     } catch (error) {

@@ -14,6 +14,10 @@ import { createUserDocument, getUserDocument } from './userService';
  */
 export async function ensureCurrentUserDocument(): Promise<{ success: boolean; role?: string; error?: string }> {
   try {
+    if (!auth) {
+      return { success: false, error: 'Firebase Auth not initialized' };
+    }
+    
     const currentUser = auth.currentUser;
     if (!currentUser) {
       return { success: false, error: 'No user logged in' };
@@ -59,12 +63,20 @@ export async function ensureCurrentUserDocument(): Promise<{ success: boolean; r
  */
 export async function forceCreateAdminDocument(): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!auth) {
+      return { success: false, error: 'Firebase Auth not initialized' };
+    }
+    
     const currentUser = auth.currentUser;
     if (!currentUser) {
       return { success: false, error: 'No user logged in' };
     }
 
     console.log('🔧 AdminFix: Force creating admin document for:', currentUser.email);
+
+    if (!db) {
+      return { success: false, error: 'Firestore not initialized' };
+    }
 
     const userRef = doc(db, 'users', currentUser.uid);
     const adminDoc = {
@@ -98,6 +110,11 @@ export async function debugAdminAccess(): Promise<void> {
   console.log('🔍 Starting admin access debug...');
   
   try {
+    if (!auth) {
+      console.log('❌ Firebase Auth not initialized');
+      return;
+    }
+    
     const currentUser = auth.currentUser;
     console.log('🔍 Current user:', currentUser?.email, 'UID:', currentUser?.uid);
     

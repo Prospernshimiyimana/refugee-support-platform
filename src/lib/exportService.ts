@@ -34,6 +34,11 @@ class ExportService {
   // Fetch all cases from Firestore
   async fetchCases(): Promise<ExportCase[]> {
     try {
+      if (!db) {
+        console.error('ExportService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const casesCollection = collection(db, 'cases');
       const casesQuery = query(casesCollection, orderBy('createdAt', 'desc'));
       const casesSnapshot = await getDocs(casesQuery);
@@ -58,6 +63,11 @@ class ExportService {
   // Fetch all news from Firestore
   async fetchNews(): Promise<ExportNews[]> {
     try {
+      if (!db) {
+        console.error('ExportService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const newsCollection = collection(db, 'news');
       const newsQuery = query(newsCollection, orderBy('date', 'desc'));
       const newsSnapshot = await getDocs(newsQuery);

@@ -45,6 +45,12 @@ export default function CaseDetailPage() {
 
     const fetchCase = async () => {
       try {
+        if (!db) {
+          setError('Database not available');
+          setLoading(false);
+          return;
+        }
+        
         const caseDoc = await getDoc(doc(db, "cases", id));
         
         if (caseDoc.exists()) {

@@ -100,6 +100,12 @@ export class UserDocumentManager {
       // Try to create a minimal user document as fallback
       try {
         console.log(`👤 UserDocumentManager: Attempting fallback user document creation for UID: ${uid}`);
+        
+        if (!db) {
+          console.error('👤 UserDocumentManager: Database not available');
+          throw error;
+        }
+        
         const userRef = doc(db, 'users', uid);
         const currentUser = this.auth.currentUser;
         const userEmail = email || currentUser?.email || '';
@@ -135,6 +141,11 @@ export class UserDocumentManager {
   async updateUserRole(uid: string, role: 'admin' | 'user'): Promise<{ success: boolean; error?: string }> {
     try {
       console.log(`👤 UserDocumentManager: Updating user role for UID: ${uid} to: ${role}`);
+      
+      if (!db) {
+        console.error('👤 UserDocumentManager: Database not available');
+        return { success: false, error: 'Database not available' };
+      }
       
       const userRef = doc(db, 'users', uid);
       await setDoc(userRef, {

@@ -56,6 +56,12 @@ export default function EditCasePage() {
           return;
         }
 
+        if (!db) {
+          setError('Database not available');
+          setLoading(false);
+          return;
+        }
+
         const caseDoc = await getDoc(doc(db, "cases", id));
         
         if (caseDoc.exists()) {
@@ -141,7 +147,13 @@ export default function EditCasePage() {
         return;
       }
 
-      const caseRef = doc(db, "cases", id);
+      if (!db) {
+        setError('Firebase not initialized');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const caseRef = doc(db!, "cases", id);
       await updateDoc(caseRef, {
         title: title.trim(),
         status,
@@ -215,7 +227,7 @@ export default function EditCasePage() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-gray-900 mb-4">Case Not Found</h1>
-            <p className="text-gray-600 mb-6">The case you're trying to edit doesn't exist.</p>
+            <p className="text-gray-600 mb-6">The case you&apos;re trying to edit doesn&apos;t exist.</p>
             <Link 
               href="/dashboard/cases"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -249,7 +261,7 @@ export default function EditCasePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-gray-900 mb-4">Case Not Found</h1>
-          <p className="text-gray-600 mb-6">The case you're trying to edit doesn't exist.</p>
+          <p className="text-gray-600 mb-6">The case you&apos;re trying to edit doesn&apos;t exist.</p>
           <Link 
             href="/dashboard/cases"
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"

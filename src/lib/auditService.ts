@@ -37,10 +37,14 @@ export type AuditAction =
   | 'SYSTEM_UPDATE';
 
 class AuditService {
-  private collection = collection(db, 'logs');
+  private collection = db ? collection(db, 'logs') : null;
 
   // Get current user email
   private getCurrentUserEmail(): string {
+    if (!auth) {
+      return 'unknown@system.com';
+    }
+    
     const currentUser = auth.currentUser;
     return currentUser?.email || 'unknown@system.com';
   }
@@ -52,6 +56,11 @@ class AuditService {
     metadata?: Record<string, unknown>
   ): Promise<string> {
     try {
+      if (!this.collection) {
+        console.error('AuditService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const logEntry: Omit<AuditLog, 'id'> = {
         action,
         userEmail: this.getCurrentUserEmail(),
@@ -171,6 +180,12 @@ class AuditService {
     callback: (logs: AuditLog[]) => void,
     limitCount: number = 100
   ): () => void {
+    if (!this.collection) {
+      console.error('AuditService: Database not available');
+      callback([]);
+      return () => {}; // Return empty unsubscribe function
+    }
+    
     const q = query(
       this.collection, 
       orderBy('timestamp', 'desc'), 
@@ -203,6 +218,12 @@ class AuditService {
     callback: (logs: AuditLog[]) => void,
     limitCount: number = 50
   ): () => void {
+    if (!this.collection) {
+      console.error('AuditService: Database not available');
+      callback([]);
+      return () => {}; // Return empty unsubscribe function
+    }
+    
     const q = query(
       this.collection, 
       where('action', '==', action),
@@ -236,6 +257,12 @@ class AuditService {
     callback: (logs: AuditLog[]) => void,
     limitCount: number = 50
   ): () => void {
+    if (!this.collection) {
+      console.error('AuditService: Database not available');
+      callback([]);
+      return () => {}; // Return empty unsubscribe function
+    }
+    
     const q = query(
       this.collection, 
       where('userEmail', '==', userEmail),
@@ -270,6 +297,11 @@ class AuditService {
     limitCount: number = 100
   ): Promise<AuditLog[]> {
     try {
+      if (!this.collection) {
+        console.error('AuditService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const startTimestamp = Timestamp.fromDate(startDate);
       const endTimestamp = Timestamp.fromDate(endDate);
       
@@ -306,6 +338,11 @@ class AuditService {
     recentActivity: AuditLog[];
   }> {
     try {
+      if (!this.collection) {
+        console.error('AuditService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const q = query(this.collection, orderBy('timestamp', 'desc'), limit(1000));
       const snapshot = await getDocs(q);
       
@@ -340,6 +377,11 @@ class AuditService {
   // Clean up old audit logs (older than 90 days)
   async cleanupOldLogs(): Promise<void> {
     try {
+      if (!this.collection) {
+        console.error('AuditService: Database not available');
+        return;
+      }
+      
       const ninetyDaysAgo = Timestamp.fromDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000));
       const q = query(this.collection, where('timestamp', '<', ninetyDaysAgo));
       const snapshot = await getDocs(q);

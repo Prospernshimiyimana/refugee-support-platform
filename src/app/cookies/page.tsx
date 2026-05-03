@@ -27,8 +27,10 @@ export default function CookiePolicyPage() {
 
   const savePreferences = () => {
     // Save preferences to localStorage or send to backend
-    localStorage.setItem('cookiePreferences', JSON.stringify(cookiePreferences));
-    alert('Cookie preferences saved successfully!');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cookiePreferences', JSON.stringify(cookiePreferences));
+      alert('Cookie preferences saved successfully!');
+    }
   };
 
   const sections = [

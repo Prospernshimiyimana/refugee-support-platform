@@ -9,6 +9,11 @@ export const createUserDocumentForUser = async (uid: string, email: string, role
   try {
     console.log('🔧 Creating user document for:', email, 'with role:', role);
     
+    if (!db) {
+      console.error('🔧 Database not available');
+      return { success: false, error: 'Database not available' };
+    }
+    
     const userRef = doc(db, 'users', uid);
     const userDoc = {
       uid,

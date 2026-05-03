@@ -69,6 +69,14 @@ export async function signUp(email: string, password: string): Promise<AuthResul
 
     console.log('🔐 RobustAuth: Creating Firebase auth user...');
     
+    if (!auth) {
+      console.error('🔐 RobustAuth: Firebase Auth not initialized');
+      return {
+        success: false,
+        error: 'Authentication service not available'
+      };
+    }
+    
     // Create Firebase auth user
     const userCredential: UserCredential = await createUserWithEmailAndPassword(
       auth,
@@ -171,6 +179,14 @@ export async function login(email: string, password: string): Promise<AuthResult
 
     console.log('🔐 RobustAuth: Authenticating user...');
     
+    if (!auth) {
+      console.error('🔐 RobustAuth: Firebase Auth not initialized');
+      return {
+        success: false,
+        error: 'Authentication service not available'
+      };
+    }
+    
     // Authenticate user
     const userCredential: UserCredential = await signInWithEmailAndPassword(
       auth,
@@ -251,6 +267,14 @@ export async function login(email: string, password: string): Promise<AuthResult
  */
 export async function logout(): Promise<AuthResult> {
   try {
+    if (!auth) {
+      console.error('🔐 RobustAuth: Firebase Auth not initialized');
+      return {
+        success: false,
+        error: 'Authentication service not available'
+      };
+    }
+    
     await signOut(auth);
     
     return {
@@ -282,6 +306,11 @@ export async function logout(): Promise<AuthResult> {
  * @returns User | null - Current user or null if not authenticated
  */
 export function getCurrentUser(): User | null {
+  if (!auth) {
+    console.warn('🔐 RobustAuth: Firebase Auth not initialized');
+    return null;
+  }
+  
   return auth.currentUser;
 }
 
@@ -293,6 +322,11 @@ export function getCurrentUser(): User | null {
 async function createEnhancedUserDocument(user: User): Promise<EnhancedUserDocument | null> {
   try {
     console.log('🔐 RobustAuth: Creating enhanced user document for UID:', user.uid);
+    
+    if (!db) {
+      console.error('🔐 RobustAuth: Database not available');
+      return null;
+    }
     
     const userRef = doc(db, 'users', user.uid);
     const now = serverTimestamp();
@@ -358,6 +392,11 @@ async function ensureUserDocumentOnLogin(user: User): Promise<EnhancedUserDocume
  */
 async function updateLastLogin(uid: string): Promise<void> {
   try {
+    if (!db) {
+      console.error('🔐 RobustAuth: Database not available');
+      return;
+    }
+    
     const userRef = doc(db, 'users', uid);
     await setDoc(userRef, {
       lastLoginAt: serverTimestamp(),
@@ -378,6 +417,12 @@ async function updateLastLogin(uid: string): Promise<void> {
  */
 export function onAuthStateChanged(callback: (user: User | null, userDoc?: EnhancedUserDocument | null) => void): Unsubscribe {
   console.log('🔐 RobustAuth: Setting up enhanced auth state listener');
+  
+  if (!auth) {
+    console.error('🔐 RobustAuth: Firebase Auth not initialized');
+    callback(null, null);
+    return () => {}; // Return empty unsubscribe function
+  }
   
   const unsubscribe = firebaseOnAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -406,6 +451,11 @@ export function onAuthStateChanged(callback: (user: User | null, userDoc?: Enhan
  * @returns Promise<EnhancedUserDocument | null>
  */
 export async function getCurrentUserDocument(): Promise<EnhancedUserDocument | null> {
+  if (!auth) {
+    console.warn('🔐 RobustAuth: Firebase Auth not initialized');
+    return null;
+  }
+  
   const currentUser = auth.currentUser;
   if (!currentUser) {
     console.log('🔐 RobustAuth: No authenticated user');
@@ -432,6 +482,11 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
  */
 export async function updateUserRole(uid: string, role: 'admin' | 'user'): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!db) {
+      console.error('🔐 RobustAuth: Database not available');
+      return { success: false, error: 'Database not available' };
+    }
+    
     const userRef = doc(db, 'users', uid);
     await setDoc(userRef, {
       role,

@@ -284,6 +284,12 @@ export default function AdminDashboard() {
     }
     
     try {
+      // Check if db is available before using it
+      if (!db) {
+        setFormError('Database connection error. Please try again later.');
+        return;
+      }
+      
       const docRef = await addDoc(collection(db, "cases"), {
         title_en: newCase.title_en.trim(),
         title_rw: newCase.title_rw.trim(),
@@ -344,6 +350,12 @@ export default function AdminDashboard() {
     }
     
     try {
+      // Check if db is available before using it
+      if (!db) {
+        alert('Database connection error. Please try again later.');
+        return;
+      }
+      
       // Save news article to Firestore using addDoc directly
       const docRef = await addDoc(collection(db, "news"), {
         title: newArticle.title.trim(),
@@ -386,6 +398,10 @@ export default function AdminDashboard() {
   // Statistics calculation functions
   const calculateCaseStats = async () => {
     try {
+      if (!db) {
+        console.error('Firestore is not initialized');
+        return;
+      }
       const casesQuery = query(collection(db, "cases"), orderBy('createdAt', 'desc'));
       const casesSnapshot = await getDocs(casesQuery);
       const casesData = casesSnapshot.docs.map(doc => ({

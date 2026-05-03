@@ -26,27 +26,42 @@ import { db } from './firebase';
 
 // Direct collection operations without any permission pre-checks
 export const safeGetDocs = async (collectionName: string, queryFn?: (ref: CollectionReference) => Query) => {
+  if (!db) {
+    throw new Error('Firestore is not initialized');
+  }
   const collectionRef = collection(db, collectionName);
   const finalQuery = queryFn ? queryFn(collectionRef) : collectionRef;
   return await getDocs(finalQuery);
 };
 
 export const safeGetDoc = async (collectionName: string, docId: string) => {
+  if (!db) {
+    throw new Error('Firestore is not initialized');
+  }
   const docRef = doc(db, collectionName, docId);
   return await getDoc(docRef);
 };
 
 export const safeAddDoc = async (collectionName: string, data: Record<string, unknown>) => {
+  if (!db) {
+    throw new Error('Firestore is not initialized');
+  }
   const collectionRef = collection(db, collectionName);
   return await addDoc(collectionRef, data);
 };
 
 export const safeUpdateDoc = async (collectionName: string, docId: string, data: Record<string, unknown>) => {
+  if (!db) {
+    throw new Error('Firestore is not initialized');
+  }
   const docRef = doc(db, collectionName, docId);
   return await updateDoc(docRef, data);
 };
 
 export const safeDeleteDoc = async (collectionName: string, docId: string) => {
+  if (!db) {
+    throw new Error('Firestore is not initialized');
+  }
   const docRef = doc(db, collectionName, docId);
   return await deleteDoc(docRef);
 };
@@ -58,11 +73,20 @@ export const safeOnSnapshot = (
   queryFn?: (ref: CollectionReference) => Query,
   errorCallback?: (error: unknown) => void
 ): Unsubscribe => {
+  if (!db) {
+    const error = new Error('Firestore is not initialized');
+    console.error(`🔥 SafeFirestore: Cannot create listener for ${collectionName}:`, error);
+    if (errorCallback) {
+      errorCallback(error);
+    }
+    return () => {}; // Return no-op unsubscribe function
+  }
+  
   const collectionRef = collection(db, collectionName);
   const finalQuery = queryFn ? queryFn(collectionRef) : collectionRef;
   
   return onSnapshot(finalQuery, callback, (error) => {
-    console.error(`� SafeFirestore: Listener error for ${collectionName}:`, error);
+    console.error(`🔥 SafeFirestore: Listener error for ${collectionName}:`, error);
     if (errorCallback) {
       errorCallback(error);
     }

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -34,15 +35,17 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col">
-        <LanguageProvider>
-          <AuthProvider>
-            <NotificationProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </NotificationProvider>
-          </AuthProvider>
-        </LanguageProvider>
+        <ErrorBoundary>
+          <LanguageProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </NotificationProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

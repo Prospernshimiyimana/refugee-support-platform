@@ -54,6 +54,14 @@ export async function signUp(email: string, password: string): Promise<AuthResul
     console.log('🔐 Auth: Calling createUserWithEmailAndPassword...');
     console.log('🔐 Auth: Firebase auth instance:', auth ? 'Available' : 'Not available');
     
+    if (!auth) {
+      console.error('🔐 Auth: Firebase Auth not initialized');
+      return {
+        success: false,
+        error: 'Authentication service not available'
+      };
+    }
+    
     const userCredential: UserCredential = await createUserWithEmailAndPassword(
       auth,
       email.trim(),
@@ -167,6 +175,14 @@ export async function login(email: string, password: string): Promise<AuthResult
     console.log('🔐 Auth: Calling signInWithEmailAndPassword...');
     console.log('🔐 Auth: Firebase auth instance:', auth ? 'Available' : 'Not available');
     
+    if (!auth) {
+      console.error('🔐 Auth: Firebase Auth not initialized');
+      return {
+        success: false,
+        error: 'Authentication service not available'
+      };
+    }
+    
     const userCredential: UserCredential = await signInWithEmailAndPassword(
       auth,
       email.trim(),
@@ -249,6 +265,14 @@ export async function login(email: string, password: string): Promise<AuthResult
  */
 export async function logout(): Promise<AuthResult> {
   try {
+    if (!auth) {
+      console.error('🔐 Auth: Firebase Auth not initialized');
+      return {
+        success: false,
+        error: 'Authentication service not available'
+      };
+    }
+    
     await signOut(auth);
     
     return {
@@ -280,6 +304,11 @@ export async function logout(): Promise<AuthResult> {
  * @returns User | null - Current user or null if not authenticated
  */
 export function getCurrentUser(): User | null {
+  if (!auth) {
+    console.warn('🔐 Auth: Firebase Auth not initialized');
+    return null;
+  }
+  
   return auth.currentUser;
 }
 
@@ -301,6 +330,12 @@ export async function createTestUser(email: string, password: string): Promise<A
  */
 export function onAuthStateChanged(callback: (user: User | null) => void) {
   console.log('🔐 Auth: Setting up onAuthStateChanged listener');
+  
+  if (!auth) {
+    console.error('🔐 Auth: Firebase Auth not initialized');
+    callback(null);
+    return () => {}; // Return empty unsubscribe function
+  }
   
   const unsubscribe = firebaseOnAuthStateChanged(auth, (user: User | null) => {
     if (user) {

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FileText, Clock, Shield, User, Search, Bell, BarChart3, Users, Globe, Zap } from 'lucide-react';
 import { listenToNewsUpdates, type NewsArticle } from '../lib/newsService';
 import { caseService, type LegalCase } from '../lib/caseService';
-import { getDashboardStats, getCurrentUser, type UserDocument } from './lib/userService';
+import { getDashboardStats, getCurrentUserDocument, type UserDocument } from './lib/userService';
 import { useLanguage } from './contexts/LanguageContext';
 import { getNewsTitle, getNewsContent, getCaseTitle, getCaseDescription } from '../lib/multilingual';
 import { auth } from './lib/firebase';
@@ -36,10 +36,16 @@ export default function Home() {
 
   // Authentication listener
   useEffect(() => {
+    if (!auth) {
+      console.warn('Firebase Auth not initialized - skipping auth listener');
+      setTimeout(() => setAuthLoading(false), 0);
+      return;
+    }
+    
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const userDoc = await getCurrentUser();
+          const userDoc = await getCurrentUserDocument();
           setUser(userDoc);
         } catch (error) {
           console.error('Error fetching user document:', error);

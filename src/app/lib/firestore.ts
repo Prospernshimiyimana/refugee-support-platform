@@ -24,7 +24,7 @@ export const COLLECTIONS = {
 } as const;
 
 // Case collection operations
-export const casesCollection = collection(db, COLLECTIONS.CASES);
+export const casesCollection = db ? collection(db, COLLECTIONS.CASES) : null;
 
 /**
  * Create a new case in Firestore
@@ -43,6 +43,10 @@ export async function createCase(caseData: {
   createdAt?: Date;
   updatedAt?: Date;
 }) {
+  if (!db || !casesCollection) {
+    throw new Error('Database not available');
+  }
+  
   const docData = {
     ...caseData,
     createdAt: Timestamp.fromDate(caseData.createdAt || new Date()),
@@ -57,6 +61,10 @@ export async function createCase(caseData: {
  * @returns Promise<QuerySnapshot>
  */
 export async function getAllCases() {
+  if (!db || !casesCollection) {
+    throw new Error('Database not available');
+  }
+  
   const q = query(casesCollection, orderBy('createdAt', 'desc'));
   return await getDocs(q);
 }
@@ -67,6 +75,12 @@ export async function getAllCases() {
  * @returns Unsubscribe function
  */
 export function listenToCases(callback: (cases: any[]) => void): Unsubscribe {
+  if (!db || !casesCollection) {
+    console.error('Database not available');
+    callback([]);
+    return () => {}; // Return empty unsubscribe function
+  }
+  
   const q = query(casesCollection, orderBy('createdAt', 'desc'));
   
   return onSnapshot(q, (querySnapshot) => {
@@ -83,6 +97,10 @@ export function listenToCases(callback: (cases: any[]) => void): Unsubscribe {
  * @returns Promise<DocumentSnapshot>
  */
 export async function getCaseById(id: string) {
+  if (!db) {
+    throw new Error('Database not available');
+  }
+  
   const caseDoc = doc(db, COLLECTIONS.CASES, id);
   return await getDoc(caseDoc);
 }
@@ -99,6 +117,10 @@ export async function updateCase(id: string, updateData: {
   description?: string;
   updatedAt?: Date;
 }) {
+  if (!db) {
+    throw new Error('Database not available');
+  }
+  
   const caseDoc = doc(db, COLLECTIONS.CASES, id);
   const docData = {
     ...updateData,
@@ -114,12 +136,16 @@ export async function updateCase(id: string, updateData: {
  * @returns Promise<void>
  */
 export async function deleteCase(id: string) {
+  if (!db) {
+    throw new Error('Database not available');
+  }
+  
   const caseDoc = doc(db, COLLECTIONS.CASES, id);
   return await deleteDoc(caseDoc);
 }
 
 // News collection operations
-export const newsCollection = collection(db, COLLECTIONS.NEWS);
+export const newsCollection = db ? collection(db, COLLECTIONS.NEWS) : null;
 
 /**
  * Create a new news article in Firestore
@@ -133,6 +159,10 @@ export async function createNewsArticle(articleData: {
   createdAt?: Date;
   updatedAt?: Date;
 }) {
+  if (!db || !newsCollection) {
+    throw new Error('Database not available');
+  }
+  
   const docData = {
     ...articleData,
     createdAt: Timestamp.fromDate(articleData.createdAt || new Date()),
@@ -147,6 +177,10 @@ export async function createNewsArticle(articleData: {
  * @returns Promise<QuerySnapshot>
  */
 export async function getAllNewsArticles() {
+  if (!db || !newsCollection) {
+    throw new Error('Database not available');
+  }
+  
   const q = query(newsCollection, orderBy('date', 'desc'));
   return await getDocs(q);
 }
@@ -157,6 +191,12 @@ export async function getAllNewsArticles() {
  * @returns Unsubscribe function
  */
 export function listenToNewsArticles(callback: (articles: any[]) => void): Unsubscribe {
+  if (!db || !newsCollection) {
+    console.error('Database not available');
+    callback([]);
+    return () => {}; // Return empty unsubscribe function
+  }
+  
   const q = query(newsCollection, orderBy('date', 'desc'));
   
   return onSnapshot(q, (querySnapshot) => {
@@ -173,8 +213,12 @@ export function listenToNewsArticles(callback: (articles: any[]) => void): Unsub
  * @returns Promise<DocumentSnapshot>
  */
 export async function getNewsArticleById(id: string) {
-  const articleDoc = doc(db, COLLECTIONS.NEWS, id);
-  return await getDoc(articleDoc);
+  if (!db || !newsCollection) {
+    throw new Error('Database not available');
+  }
+  
+  const newsDoc = doc(db, COLLECTIONS.NEWS, id);
+  return await getDoc(newsDoc);
 }
 
 /**
@@ -189,6 +233,10 @@ export async function updateNewsArticle(id: string, updateData: {
   date?: string;
   updatedAt?: Date;
 }) {
+  if (!db) {
+    throw new Error('Database not available');
+  }
+  
   const articleDoc = doc(db, COLLECTIONS.NEWS, id);
   const docData = {
     ...updateData,
@@ -204,6 +252,10 @@ export async function updateNewsArticle(id: string, updateData: {
  * @returns Promise<void>
  */
 export async function deleteNewsArticle(id: string) {
+  if (!db) {
+    throw new Error('Database not available');
+  }
+  
   const articleDoc = doc(db, COLLECTIONS.NEWS, id);
   return await deleteDoc(articleDoc);
 }

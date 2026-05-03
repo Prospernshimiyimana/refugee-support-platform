@@ -35,6 +35,10 @@ export class FirestoreLogger {
   // Log user document existence check
   async logUserDocumentCheck(uid: string) {
     try {
+      if (!db) {
+        console.error('🔥 FirestoreLogger - Firestore instance is null, cannot check user document');
+        return false;
+      }
       const userDoc = await getDoc(doc(db, 'users', uid));
       console.log(`🔥 FirestoreLogger - User Document Check:`, {
         uid,

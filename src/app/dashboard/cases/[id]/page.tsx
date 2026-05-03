@@ -45,6 +45,12 @@ export default function DashboardCaseDetailPage() {
           return;
         }
 
+        if (!db) {
+          setError('Database not available');
+          setLoading(false);
+          return;
+        }
+
         const caseDoc = await getDoc(doc(db, "cases", id));
         
         if (caseDoc.exists()) {

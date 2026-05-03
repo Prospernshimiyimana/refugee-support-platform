@@ -26,11 +26,16 @@ export interface FirestoreNotification {
 }
 
 class FirestoreNotificationService {
-  private collection = collection(db, 'notifications');
+  private collection = db ? collection(db, 'notifications') : null;
 
   // Create a new notification
   async createNotification(notification: Omit<FirestoreNotification, 'id' | 'createdAt' | 'read'>): Promise<string> {
     try {
+      if (!this.collection) {
+        console.error('FirestoreNotificationService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const docRef = await addDoc(this.collection, {
         ...notification,
         createdAt: Timestamp.now(),
@@ -77,6 +82,11 @@ class FirestoreNotificationService {
   // Mark notification as read
   async markAsRead(notificationId: string): Promise<void> {
     try {
+      if (!db) {
+        console.error('FirestoreNotificationService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const notificationRef = doc(db, 'notifications', notificationId);
       await updateDoc(notificationRef, { read: true });
       console.log('Notification marked as read:', notificationId);
@@ -89,6 +99,11 @@ class FirestoreNotificationService {
   // Mark all notifications as read
   async markAllAsRead(): Promise<void> {
     try {
+      if (!this.collection) {
+        console.error('FirestoreNotificationService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const q = query(this.collection, where('read', '==', false));
       const snapshot = await getDocs(q);
       
@@ -107,6 +122,11 @@ class FirestoreNotificationService {
   // Delete notification
   async deleteNotification(notificationId: string): Promise<void> {
     try {
+      if (!db) {
+        console.error('FirestoreNotificationService: Database not available');
+        throw new Error('Database not available');
+      }
+      
       const notificationRef = doc(db, 'notifications', notificationId);
       await deleteDoc(notificationRef);
       console.log('Notification deleted:', notificationId);
@@ -119,6 +139,11 @@ class FirestoreNotificationService {
   // Get unread notifications count
   async getUnreadCount(): Promise<number> {
     try {
+      if (!this.collection) {
+        console.error('FirestoreNotificationService: Database not available');
+        return 0;
+      }
+      
       const q = query(this.collection, where('read', '==', false));
       const snapshot = await getDocs(q);
       return snapshot.size;
@@ -137,6 +162,12 @@ class FirestoreNotificationService {
     const auth = getAuth();
     if (!auth.currentUser) {
       console.warn('Cannot subscribe to notifications: User not authenticated');
+      return () => {}; // Return empty unsubscribe function
+    }
+    
+    if (!this.collection) {
+      console.error('FirestoreNotificationService: Database not available');
+      callback([]);
       return () => {}; // Return empty unsubscribe function
     }
 
@@ -176,6 +207,12 @@ class FirestoreNotificationService {
       console.warn('Cannot subscribe to unread notifications: User not authenticated');
       return () => {}; // Return empty unsubscribe function
     }
+    
+    if (!this.collection) {
+      console.error('FirestoreNotificationService: Database not available');
+      callback([]);
+      return () => {}; // Return empty unsubscribe function
+    }
 
     const q = query(
       this.collection, 
@@ -206,6 +243,11 @@ class FirestoreNotificationService {
   // Clean up old notifications (older than 30 days)
   async cleanupOldNotifications(): Promise<void> {
     try {
+      if (!this.collection) {
+        console.error('FirestoreNotificationService: Database not available');
+        return;
+      }
+      
       const thirtyDaysAgo = Timestamp.fromDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
       const q = query(this.collection, where('createdAt', '<', thirtyDaysAgo));
       const snapshot = await getDocs(q);

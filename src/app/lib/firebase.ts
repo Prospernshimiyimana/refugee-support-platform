@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, browserLocalPersistence } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
 
@@ -24,35 +24,63 @@ const requiredConfigVars = [
 
 const missingConfigVars = requiredConfigVars.filter(varName => !process.env[varName]);
 
-if (missingConfigVars.length > 0 && process.env.NODE_ENV === 'production') {
-  console.error('Missing required Firebase environment variables:', missingConfigVars);
-  throw new Error(`Missing Firebase configuration: ${missingConfigVars.join(', ')}`);
+// Log warnings for missing environment variables instead of throwing errors
+if (missingConfigVars.length > 0) {
+  console.warn('🔥 Firebase Warning: Missing environment variables:', missingConfigVars);
+  console.warn('🔥 Firebase: Using fallback values for development');
+  
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('🔥 Firebase Production: Some features may not work correctly without proper environment variables');
+    console.warn('🔥 Firebase: Please set these variables in your Vercel dashboard:', missingConfigVars.join(', '));
+  }
 }
 
-// Initialize Firebase
-console.log('🔥 Firebase: Initializing Firebase app...');
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-console.log('🔥 Firebase: Firebase app initialized successfully');
-export const auth = getAuth(app);
-console.log('🔥 Firebase: Auth instance created');
+// Only initialize Firebase if we have the minimum required configuration
+const hasMinimumConfig = process.env.NEXT_PUBLIC_FIREBASE_API_KEY && 
+                        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && 
+                        process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 
-// Configure auth persistence
-import { browserLocalPersistence } from 'firebase/auth';
-console.log('🔥 Firebase: Setting auth persistence to browserLocalPersistence');
-auth.setPersistence(browserLocalPersistence).then(() => {
-  console.log('🔥 Firebase: Auth persistence set successfully');
-}).catch((error) => {
-  console.error('🔥 Firebase: Failed to set auth persistence:', error);
-});
+let firebaseApp: ReturnType<typeof initializeApp> | null = null;
 
-// Initialize Firestore
-export const db = getFirestore(app);
+if (hasMinimumConfig) {
+  try {
+    console.log('🔥 Firebase: Initializing Firebase app...');
+    firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    console.log('🔥 Firebase: Firebase app initialized successfully');
+  } catch (error) {
+    console.error('🔥 Firebase: Failed to initialize Firebase:', error);
+    console.warn('🔥 Firebase: App will run in limited mode without Firebase functionality');
+  }
+} else {
+  console.warn('🔥 Firebase: Skipping initialization - missing required configuration');
+  console.warn('🔥 Firebase: App will run in demo mode without Firebase functionality');
+}
+
+// Export Firebase instances (null if initialization failed)
+export const app = firebaseApp;
+export const auth = firebaseApp ? getAuth(firebaseApp) : null;
+export const db = firebaseApp ? getFirestore(firebaseApp) : null;
+
+if (firebaseApp) {
+  console.log('🔥 Firebase: Auth instance created');
+  console.log('🔥 Firebase: Firestore instance created');
+  
+  // Configure auth persistence only in browser environment
+  if (typeof window !== 'undefined') {
+    console.log('🔥 Firebase: Setting auth persistence to browserLocalPersistence');
+    auth!.setPersistence(browserLocalPersistence).then(() => {
+      console.log('🔥 Firebase: Auth persistence set successfully');
+    }).catch((error: unknown) => {
+      console.error('🔥 Firebase: Failed to set auth persistence:', error);
+    });
+  }
+}
 
 // Initialize Analytics only in browser environment
 let analytics = null;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && firebaseApp) {
   try {
-    analytics = getAnalytics(app);
+    analytics = getAnalytics(firebaseApp);
   } catch (error) {
     console.warn('Analytics initialization failed:', error);
   }

@@ -4,10 +4,16 @@ import React, { useState } from 'react';
 import { testAuthSystem, getAuthSystemStatus } from '../lib/authMigration';
 import { signUp, login } from '../lib/robustAuthService';
 
+interface AuthSystemStatus {
+  usingRobustAuth: boolean;
+  environment: string;
+  recommendations: string[];
+}
+
 export default function AuthTest() {
   const [testResults, setTestResults] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<AuthSystemStatus | null>(null);
 
   const runAuthTest = async () => {
     setIsLoading(true);
@@ -124,8 +130,8 @@ export default function AuthTest() {
       <div className="mt-6 p-4 bg-yellow-50 rounded-lg text-sm">
         <h3 className="font-semibold mb-2">📋 How to Use:</h3>
         <ol className="list-decimal list-inside space-y-1">
-          <li>Click "Run Full Authentication Test" for comprehensive testing</li>
-          <li>Click "Quick Signup Test" for a simple signup verification</li>
+          <li>Click &quot;Run Full Authentication Test&quot; for comprehensive testing</li>
+          <li>Click &quot;Quick Signup Test&quot; for a simple signup verification</li>
           <li>Check the results for any errors or warnings</li>
           <li>Verify that Firestore user documents are created automatically</li>
         </ol>

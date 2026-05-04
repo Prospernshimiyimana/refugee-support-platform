@@ -72,7 +72,7 @@ function DefaultErrorFallback({ error, errorInfo, reset }: {
         </h2>
         
         <p className="text-gray-600 mb-6">
-          We're sorry, but something unexpected happened. The error has been logged and our team will look into it.
+          We&apos;re sorry, but something unexpected happened. The error has been logged and our team will look into it.
         </p>
         
         <div className="space-y-3">

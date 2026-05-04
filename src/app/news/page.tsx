@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { listenToNewsUpdates, type NewsArticle } from '../../lib/newsService';
 import { User, Calendar } from 'lucide-react';
+import Link from 'next/link';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSafeFirestore } from '../hooks/useSafeFirestore';
@@ -139,7 +140,7 @@ export default function NewsPage() {
             {articles.map((article) => {
               const localizedContent = getLocalizedContent(article, language);
               return (
-                <div key={article.id} className="group">
+                <Link key={article.id} href={`/news/${article.id}`} className="group block">
                   <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 group-hover:border-blue-200 p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -163,18 +164,15 @@ export default function NewsPage() {
                   </div>
                   
                   <div className="pt-4 border-t border-gray-100">
-                    <a
-                      href={`/news/${article.id}`}
-                      className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm group-hover:text-blue-700 transition-colors duration-300"
-                    >
+                    <span className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm group-hover:text-blue-700 transition-colors duration-300">
                       Read more
                       <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
-                    </a>
+                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
               );
             })}
           </div>

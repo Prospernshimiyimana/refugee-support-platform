@@ -8,7 +8,6 @@ import { useState, useEffect, useRef } from 'react';
 import { notificationService, Notification } from '../../lib/notificationService';
 import { persistLanguage, getStoredLanguage } from '../../lib/translations';
 import {
-  BriefcaseBusiness,
   Bell,
   ChevronDown,
   HeartHandshake,
@@ -90,7 +89,6 @@ export default function Navbar() {
 
   const navLinks: NavLink[] = [
     { href: '/', label: t('navbar.home'), icon: Home },
-    { href: '/cases', label: t('navbar.cases'), icon: BriefcaseBusiness },
     { href: '/news', label: t('navbar.news'), icon: Newspaper },
   ];
 

@@ -6,8 +6,8 @@ interface NewsCardProps {
     title: string;
     summary: string;
     date: string;
-    createdAt: any;
-    updatedAt: any;
+    createdAt: Date | string;
+    updatedAt: Date | string;
   };
 }
 

@@ -36,26 +36,10 @@ export const translations = {
     // Status and States
     loading: 'Loading...',
     noData: 'No data found',
-    noCases: 'No cases available yet',
     noNews: 'No news articles available yet',
     noUsers: 'No users found',
     error: 'Error',
     success: 'Success',
-    
-    // Case Management
-    caseTitle: 'Case Title',
-    caseDescription: 'Case Description',
-    caseStatus: 'Case Status',
-    active: 'Active',
-    pending: 'Pending',
-    blocked: 'Blocked',
-    high: 'High',
-    medium: 'Medium', 
-    low: 'Low',
-    priority: 'Priority',
-    assignedTo: 'Assigned To',
-    createdAt: 'Created At',
-    updatedAt: 'Updated At',
     
     // News Management
     newsTitle: 'News Title',
@@ -78,15 +62,12 @@ export const translations = {
     // Dashboard
     statistics: 'Statistics',
     platformStats: 'Platform Statistics',
-    totalCases: 'Total Cases',
     totalNews: 'Total News Articles',
     realTimeData: 'Real-time data from our refugee support platform',
     
     // Homepage
     platformFeatures: 'Platform Features',
-    latestCases: 'Latest Cases',
     latestNews: 'Latest News',
-    mostRecentCases: 'Most recent refugee legal cases',
     stayUpdated: 'Stay updated with latest refugee policy changes and important announcements',
     comprehensiveTools: 'Comprehensive tools for tracking refugee policies and legal developments',
     
@@ -110,7 +91,7 @@ export const translations = {
   rw: {
     // Navigation
     home: 'Ahabanza',
-    cases: 'Imanza',
+    cases: 'Imibano',
     news: 'Amakuru', 
     dashboard: 'Urwego rwa Muyobozi',
     about: 'Ibyacu',
@@ -137,26 +118,10 @@ export const translations = {
     // Status and States
     loading: 'Irimo gutangiza...',
     noData: 'Nta data ibonetse',
-    noCases: 'Nta manda wabonetse',
     noNews: 'Nta makuru wabonetse',
     noUsers: 'Nta mukoresha wabonetse',
     error: 'Ikosa',
     success: 'Byasohotse',
-    
-    // Case Management
-    caseTitle: 'Umutwe w\'Umanda',
-    caseDescription: 'Ubusobanuro bw\'Umanda',
-    caseStatus: 'Imimerere y\'Umanda',
-    active: 'Ikora',
-    pending: 'Iteganywa',
-    blocked: 'Yahagaritswe',
-    high: 'Hejuru',
-    medium: 'Hagati',
-    low: 'Hasi',
-    priority: 'Urwego rwa Biryo',
-    assignedTo: 'Yashyizwe ku',
-    createdAt: 'Tangijwe ku',
-    updatedAt: 'Kuvugururwe ku',
     
     // News Management
     newsTitle: 'Umutwe w\'Igitabo',
@@ -179,15 +144,12 @@ export const translations = {
     // Dashboard
     statistics: 'Imibare',
     platformStats: 'Imibare y\'Igikoresho',
-    totalCases: 'Imanza Zose',
     totalNews: 'Ingingo z\'Amakuru Zose',
     realTimeData: 'Reba imibare y\'ibikorwa byose ku rubuga hano',
     
     // Homepage
     platformFeatures: 'Ibikorwa Byacu',
-    latestCases: 'Imanza ya Vuba',
     latestNews: 'Amakuru ya Vuba',
-    mostRecentCases: 'Imanza zashashatswe vuba z\'impunzi',
     stayUpdated: 'Reba amakuru ashya n\'amatangazo yerekeye politiki z\'impunzi',
     comprehensiveTools: 'Ibikoresho byuzuye byo gukurikirana politiki z\'impunzi n\'iterambere r\'amategeko',
     

@@ -22,9 +22,6 @@ export interface AuditLog {
 }
 
 export type AuditAction = 
-  | 'CREATE_CASE'
-  | 'UPDATE_CASE'
-  | 'DELETE_CASE'
   | 'CREATE_NEWS'
   | 'UPDATE_NEWS'
   | 'DELETE_NEWS'
@@ -76,31 +73,6 @@ class AuditService {
       console.error('Error creating audit log:', error);
       throw error;
     }
-  }
-
-  // Log case creation
-  async logCaseCreation(caseId: string, caseTitle: string): Promise<string> {
-    return this.logAction('CREATE_CASE', `Case "${caseTitle}" created`, {
-      caseId,
-      caseTitle
-    });
-  }
-
-  // Log case update
-  async logCaseUpdate(caseId: string, caseTitle: string, changes: Record<string, unknown>): Promise<string> {
-    return this.logAction('UPDATE_CASE', `Case "${caseTitle}" updated`, {
-      caseId,
-      caseTitle,
-      changes
-    });
-  }
-
-  // Log case deletion
-  async logCaseDeletion(caseId: string, caseTitle: string): Promise<string> {
-    return this.logAction('DELETE_CASE', `Case "${caseTitle}" deleted`, {
-      caseId,
-      caseTitle
-    });
   }
 
   // Log news creation

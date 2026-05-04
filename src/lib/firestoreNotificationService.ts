@@ -20,7 +20,7 @@ export interface FirestoreNotification {
   message: string;
   createdAt: Timestamp;
   read: boolean;
-  type: 'case' | 'news' | 'system';
+  type: 'news' | 'system';
   actionUrl?: string;
   title?: string;
 }
@@ -39,7 +39,8 @@ class FirestoreNotificationService {
       const docRef = await addDoc(this.collection, {
         ...notification,
         createdAt: Timestamp.now(),
-        read: false
+        read: false,
+        actionUrl: notification.actionUrl || null
       });
       console.log('Notification created successfully with ID:', docRef.id);
       return docRef.id;
@@ -47,16 +48,6 @@ class FirestoreNotificationService {
       console.error('Error creating notification:', error);
       throw error;
     }
-  }
-
-  // Create notification for new case
-  async createCaseNotification(caseId: string, caseTitle: string): Promise<string> {
-    return this.createNotification({
-      message: `New case "${caseTitle}" has been created`,
-      type: 'case',
-      actionUrl: `/dashboard/cases/${caseId}`,
-      title: 'New case created'
-    });
   }
 
   // Create notification for new news article

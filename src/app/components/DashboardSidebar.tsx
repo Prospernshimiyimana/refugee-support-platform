@@ -6,7 +6,6 @@ import {
   BarChart3,
   Bell,
   Download,
-  FileText,
   HeartHandshake,
   LayoutDashboard,
   Newspaper,
@@ -37,14 +36,7 @@ const navigationSections: NavSection[] = [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     ],
   },
-  {
-    label: 'Cases',
-    items: [
-      { name: 'All Cases', href: '/dashboard/cases', icon: FileText },
-      { name: 'Case Statistics', href: '/dashboard/cases/stats', icon: BarChart3 },
-    ],
-  },
-  {
+    {
     label: 'News',
     items: [
       { name: 'News Articles', href: '/dashboard/news', icon: Newspaper },
@@ -71,10 +63,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const isActive = (href: string) => {
     if (href === '/dashboard') {
       return pathname === href;
-    }
-
-    if (href === '/dashboard/cases') {
-      return pathname === href || /^\/dashboard\/cases\/[^/]+(\/edit)?$/.test(pathname);
     }
 
     if (href === '/dashboard/news') {

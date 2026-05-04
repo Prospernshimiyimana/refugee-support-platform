@@ -13,7 +13,6 @@ export interface Notification {
 // Convert Firestore notification to UI notification
 const convertFirestoreNotification = (firestoreNotif: FirestoreNotification): Notification => {
   const typeMap: Record<string, Notification['type']> = {
-    'case': 'info',
     'news': 'success', 
     'system': 'warning'
   };
@@ -118,7 +117,7 @@ class NotificationService {
   async addNotification(notification: Omit<Notification, 'id'>) {
     try {
       // Convert to Firestore format and create
-      const typeMap: Record<string, 'case' | 'news' | 'system'> = {
+      const typeMap: Record<string, 'news' | 'system'> = {
         'info': 'system',
         'success': 'system', 
         'warning': 'system',
@@ -128,7 +127,7 @@ class NotificationService {
       const id = await firestoreNotificationService.createNotification({
         message: notification.message || notification.title,
         type: typeMap[notification.type] || 'system',
-        actionUrl: notification.actionUrl,
+        actionUrl: notification.actionUrl || undefined,
         title: notification.title
       });
       

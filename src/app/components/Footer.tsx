@@ -151,16 +151,7 @@ export default function Footer() {
                       </svg>
                       <span className="group-hover:translate-x-1 transition-transform duration-200">Home</span>
                     </Link>
-                    <Link 
-                      href="/cases" 
-                      className="group flex items-center text-gray-300 hover:text-white transition-all duration-200"
-                    >
-                      <svg className="w-4 h-4 mr-2 text-gray-400 group-hover:text-blue-400 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H9z" />
-                      </svg>
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">Cases</span>
-                    </Link>
-                    <Link 
+                                        <Link 
                       href="/news" 
                       className="group flex items-center text-gray-300 hover:text-white transition-all duration-200"
                     >

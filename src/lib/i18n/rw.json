@@ -1,7 +1,6 @@
 {
   "navbar": {
     "home": "Ahabanza",
-    "cases": "Imanza",
     "news": "Amakuru",
     "login": "Injira",
     "logout": "Tangira",
@@ -14,15 +13,11 @@
     "title": "Imbonerahamwe",
     "welcome": "Murakaza neza",
     "stats": {
-      "totalCases": "Imanza Yose",
-      "activeCases": "Imanza Zikora",
-      "pendingCases": "Imanza Zitagira Icyo Zikora",
       "totalUsers": "Abakoresha Bose",
       "totalNews": "Amakuru Yose"
     },
     "recentActivity": "Ibikorwa Byashize",
     "quickActions": "Ibikorwa Vuba",
-    "createCase": "Tanga Imana",
     "createNews": "Tanga Amakuru",
     "viewUsers": "Reba Abakoresha"
   },
@@ -57,27 +52,6 @@
     "signUp": "Iyandikishe",
     "loginError": "Injira yaranenze. Reba amakuru yawe.",
     "loading": "Irimo..."
-  },
-  "cases": {
-    "title": "Imanza",
-    "createCase": "Tanga Imana",
-    "editCase": "Hindura Imana",
-    "deleteCase": "Siba Imana",
-    "caseTitle": "Umutwe w'Imana",
-    "description": "Ubusobanuro",
-    "status": "Imimerere",
-    "priority": "Urwego rwa mbere",
-    "assignedTo": "Yahawe",
-    "createdAt": "Yakozwe Ku",
-    "updatedAt": "Yahinduwe Ku",
-    "active": "Ikora",
-    "pending": "Itagira icyo ikora",
-    "blocked": "Yahujwe",
-    "high": "Hejuru",
-    "medium": "Hagati",
-    "low": "Hasi",
-    "noCases": "Nta imanza zabonetse",
-    "createNewCase": "Tanga imanza nshya"
   },
   "news": {
     "title": "Amakuru",

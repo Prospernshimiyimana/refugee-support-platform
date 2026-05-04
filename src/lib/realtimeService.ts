@@ -95,26 +95,6 @@ class RealtimeService {
     });
   }
 
-  // Subscribe to cases collection
-  subscribeToCases(callback: (cases: DocumentData[]) => void): Unsubscribe {
-    return this.subscribeToCollection('cases', callback, {
-      orderBy: 'lastUpdated',
-      orderDirection: 'desc'
-    });
-  }
-
-  // Subscribe to cases by status
-  subscribeToCasesByStatus(
-    status: string, 
-    callback: (cases: DocumentData[]) => void
-  ): Unsubscribe {
-    return this.subscribeToCollection('cases', callback, {
-      where: ['status', '==', status],
-      orderBy: 'lastUpdated',
-      orderDirection: 'desc'
-    });
-  }
-
   // Subscribe to news collection (all news, filtered client-side)
   subscribeToNews(callback: (news: DocumentData[]) => void): Unsubscribe {
     return this.subscribeToCollection('news', (allNews) => {
@@ -130,14 +110,13 @@ class RealtimeService {
   // Subscribe to dashboard stats (real-time counts)
   subscribeToDashboardStats(callback: (stats: {
     usersCount: number;
-    casesCount: number;
     newsCount: number;
   }) => void): Unsubscribe {
     // Check if user is authenticated
     const auth = getAuth();
     if (!auth.currentUser) {
       console.warn('Cannot subscribe to dashboard stats: User not authenticated');
-      callback({ usersCount: 0, casesCount: 0, newsCount: 0 }); // Return zero counts
+      callback({ usersCount: 0, newsCount: 0 }); // Return zero counts
       return () => {}; // Return empty unsubscribe function
     }
 

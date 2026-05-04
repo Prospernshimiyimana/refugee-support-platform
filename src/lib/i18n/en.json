@@ -1,7 +1,6 @@
 {
   "navbar": {
     "home": "Home",
-    "cases": "Cases",
     "news": "News",
     "login": "Login",
     "logout": "Sign out",
@@ -14,15 +13,11 @@
     "title": "Dashboard",
     "welcome": "Welcome back",
     "stats": {
-      "totalCases": "Total Cases",
-      "activeCases": "Active Cases",
-      "pendingCases": "Pending Cases",
       "totalUsers": "Total Users",
       "totalNews": "Total News"
     },
     "recentActivity": "Recent Activity",
     "quickActions": "Quick Actions",
-    "createCase": "Create Case",
     "createNews": "Create News",
     "viewUsers": "View Users"
   },
@@ -57,27 +52,6 @@
     "signUp": "Sign up",
     "loginError": "Login failed. Please check your credentials.",
     "loading": "Loading..."
-  },
-  "cases": {
-    "title": "Cases",
-    "createCase": "Create Case",
-    "editCase": "Edit Case",
-    "deleteCase": "Delete Case",
-    "caseTitle": "Case Title",
-    "description": "Description",
-    "status": "Status",
-    "priority": "Priority",
-    "assignedTo": "Assigned To",
-    "createdAt": "Created At",
-    "updatedAt": "Updated At",
-    "active": "Active",
-    "pending": "Pending",
-    "blocked": "Blocked",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "noCases": "No cases found",
-    "createNewCase": "Create new case"
   },
   "news": {
     "title": "News",

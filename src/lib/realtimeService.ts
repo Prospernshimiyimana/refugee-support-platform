@@ -132,13 +132,12 @@ class RealtimeService {
 
     // Create separate listeners for each collection count
     let usersCount = 0;
-    let casesCount = 0;
     let newsCount = 0;
     let completed = 0;
 
     const checkComplete = () => {
-      if (completed === 3) {
-        callback({ usersCount, casesCount, newsCount });
+      if (completed === 2) {
+        callback({ usersCount, newsCount });
       }
     };
 
@@ -158,21 +157,6 @@ class RealtimeService {
       }
     );
 
-    // Cases count
-    const casesUnsub = safeOnSnapshot(
-      'cases',
-      (snapshot: any) => {
-        casesCount = snapshot.size;
-        completed++;
-        checkComplete();
-      },
-      undefined,
-      (error: any) => {
-        console.error('Real-time cases count error:', error);
-        completed++;
-        checkComplete();
-      }
-    );
 
     // News count (only published news to avoid permission issues)
     const newsQuery = safeQuery.combine(
@@ -196,7 +180,6 @@ class RealtimeService {
     // Combined unsubscribe function
     const unsubscribe = () => {
       usersUnsub();
-      casesUnsub();
       newsUnsub();
       this.listeners.delete(key);
     };

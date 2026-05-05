@@ -23,7 +23,7 @@ export default function AboutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <Heart className="w-4 h-4 mr-2" />
+                <Heart size={16} className="mr-2" />
                 About Our Mission
               </motion.div>
 
@@ -85,7 +85,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="w-full h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl shadow-2xl flex items-center justify-center">
-                  <Heart className="w-24 h-24 text-blue-600" />
+                  <Heart size={96} className="text-blue-600" />
                 </div>
               </motion.div>
               
@@ -426,7 +426,7 @@ export default function AboutPage() {
                   className="inline-flex items-center px-8 py-4 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-white"
                 >
                   Volunteer
-                  <Heart className="w-5 h-5 ml-2" />
+                  <Heart size={20} className="ml-2" />
                 </a>
               </motion.div>
             </div>

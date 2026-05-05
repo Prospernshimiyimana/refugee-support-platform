@@ -402,7 +402,7 @@ export default function ContactPage() {
               <div className="space-y-6">
                 <motion.div
                   className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-start space-x-4">

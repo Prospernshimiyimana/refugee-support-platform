@@ -401,8 +401,8 @@ export default function ContactPage() {
               {/* Contact Cards */}
               <div className="space-y-6">
                 <motion.div
-                  className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100"
-                  whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+                  className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                  whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-start space-x-4">
@@ -428,8 +428,8 @@ export default function ContactPage() {
                 </motion.div>
 
                 <motion.div
-                  className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100"
-                  whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+                  className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                  whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-start space-x-4">
@@ -455,8 +455,8 @@ export default function ContactPage() {
                 </motion.div>
 
                 <motion.div
-                  className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100"
-                  whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+                  className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                  whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-start space-x-4">
@@ -521,8 +521,8 @@ export default function ContactPage() {
 
               {/* Social Media */}
               <motion.div
-                className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100"
-                whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+                className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                whileHover={{ y: -5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <div className="flex items-center mb-6">
